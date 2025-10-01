@@ -26,6 +26,9 @@ C
 D
 
 https://ascelibrary.org/doi/abs/10.1061/(ASCE)SU.1943-5428.0000097 => Point Cloud Data Conversion into Solid Models via Point-Based Voxelization (payant)
+https://openaccess.thecvf.com/content/ICCV2021/papers/Xu_RPVNet_A_Deep_and_Efficient_Range-Point-Voxel_Fusion_Network_for_LiDAR_ICCV_2021_paper.pdf => RPVNet: A Deep and Efficient Range-Point-Voxel Fusion Network for LiDAR
+Point Cloud Segmentation
+
 
 
 
@@ -57,7 +60,7 @@ A.3
 Voxelisation modèle 3D
 Sélection de briques à partir de la grille de voxels en tenant compte des difficultés
 Génération instructions de montage étape par étape
-=> intéressant pour les fiches de montage, 
+=> intéressant pour les fiches de montage, problème de montage toujours layer par layer, pas de code (algorithme à implémenter)
 
 
 A.4
