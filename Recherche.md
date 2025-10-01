@@ -9,7 +9,7 @@ A
 A.1 https://dl.acm.org/doi/pdf/10.1145/2739480.2754667 => Finding an Optimal LEGO Brick Layout of Voxelized 3D Object Using a Genetic Algorithm (S'occupe des problèmes de voxelisation et d'assemblage optimisé avec les briques)
 A.2 https://www.sciencedirect.com/science/article/abs/pii/S1077316985710398 => Fundamentals of Surface Voxelization (Payant mais intéressant pour comprendre le problème de voxelisation)
 A.3 https://miis.maths.ox.ac.uk/miis/623/1/LegoModelAutomation.pdf => Lego: Automated model construction (PDF non copiable, 
-A.4 https://dl.acm.org/doi/pdf/10.1145/3095140.3095180 => Legorization with multi-height bricks from silhouee-fiedvoxelization (voxelisation et legorization
+A.4 https://dl.acm.org/doi/pdf/10.1145/3095140.3095180 => Legorization with multi-height bricks from silhouette-fiedvoxelization (voxelisation et legorization
 A.5 https://www.mdpi.com/1424-8220/21/24/8241 => Voxelisation Algorithms and Data Structures: A Review 
 A.6 https://www.sciencedirect.com/science/article/pii/S1569843223000304 => Point cloud voxel classification of aerial urban LiDAR using voxel attributes and random forest approach
 
