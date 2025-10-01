@@ -35,6 +35,44 @@ https://ascelibrary.org/doi/abs/10.1061/(ASCE)SU.1943-5428.0000097 => Point Clou
 
 
 A.1
+Voxelisation modèle 3D (réduction de l’objet en une grille de voxels)
+“layout” (couche) de briques Lego : chaque brique recouvre un certain nombre de voxels en respectant les formes des briques Lego 
+Algorithme génétique :
+    Solidité de l'algo
+    Fidélité à la forme originale
+    Nombre et type de briques (minimisation des coûts/complexité)
+=> nouvelle méthodo, 
+
+
+A.2 (article payant, résumé grâce à ChatGpt)
+Algorithmes voxelisation de surfaces polygonales (par exemple: triangles ou polygones)
+Gestion des cas limites (aliasing (?), trous dans la surface voxelisée)
+Fidélité (préservation des détails, gestion des arêtes fines)
+Discussion sur les compromis résolution/rapidité/mémoire
+=> choisir méthode adaptée selon le nuage de points ou de la modélisation
+
+
+A.3
+Voxelisation modèle 3D
+Sélection de briques à partir de la grille de voxels en tenant compte des difficultés
+Génération instructions de montage étape par étape
+=> intéressant pour les fiches de montage, 
+
+
+A.4
+Bric à brac voxelisation et optimisation assemblage
+Voxelisation par rapport à la silhouette du modèle 
+Algorithmes d’assemblage 
+=> optimiser nbr de pièces 
+
+
+A.5
+Prétraitement points Lidar
+Grille voxelisée adaptée à la densité des points
+Extraction des batiments, arbres etc.. 
+Accélérer la voxelisation sur de grands volumes de données
+=> première étape avant voxelisation, transformer des données Lidar en modèles voxelisés
+
 
 
 
