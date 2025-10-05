@@ -1,2 +1,11 @@
-Mercredi 24 septembre : Echange avec nos commanditaires, création du projet Github et consultation d'articles scientifiques en lien avec le projet.
-Mercredi 01 octobre : Echange avec nos commanditaires, création d'un fichier de lecture des données LIDAR, lecture poussée d'articles scientifiques ciblés.
+# Avancement
+
+## Mercredi 24 septembre
+- Échange avec nos commanditaires  
+- Création du projet GitHub  
+- Consultation d’articles scientifiques en lien avec le projet  
+
+## Mercredi 01 octobre
+- Échange avec nos commanditaires  
+- Création d’un fichier de lecture des données LIDAR  
+- Lecture poussée d’articles scientifiques ciblés  
