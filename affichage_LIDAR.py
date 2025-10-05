@@ -6,7 +6,7 @@ import laspy
 """=== Code ==="""
 
 # Chemin vers ton fichier .laz
-file_path = "Data/LHD_FXX_0652_6863_PTS_LAMB93_IGN69.copc.laz"
+file_path = ""
 
 # Lecture du fichier LiDAR avec le backend LASZIP
 las = laspy.read(file_path, laz_backend=laspy.LazBackend.Laszip)
@@ -32,7 +32,7 @@ print("\n=== Bords de la zone ===")
 print("Min :", las.header.min)
 print("Max :", las.header.max)
 
-# Infos sur le système et le logiciel
+# Affichage des infos sur le système et le logiciel
 print("\n=== Infos du fichier ===")
 print("Système :", las.header.system_identifier)
 print("Logiciel :", las.header.generating_software)
@@ -51,7 +51,7 @@ print("\nNombre de points :", len(las.points))
 
 
 
-# Afficher tous les attributs disponibles pour chaque point
+# Affichages des attributs disponibles pour chaque point
 print("\n=== Attributs disponibles pour chaque point ===")
 for attr in las.point_format.dimension_names:
     print("-", attr)
@@ -63,16 +63,17 @@ print("\n=== Exemple des n premiers points ===")
 n = int(input("Nombre de points affichés : "))
 for i in range(n):
     print(f"Point {i+1} :")
-    # X, Y, Z bruts et convertis
+    # X, Y, Z 
     print(f"  X brut   : {las.X[i]}   -> converti : {las.x[i]}")
     print(f"  Y brut   : {las.Y[i]}   -> converti : {las.y[i]}")
     print(f"  Z brut   : {las.Z[i]}   -> converti : {las.z[i]}")
     
     # Autres attributs
     for attr in las.point_format.dimension_names:
-        if attr not in ["X", "Y", "Z"]:  # X,Y,Z déjà affichés
+        if attr not in ["X", "Y", "Z"]: 
             print(f"  {attr} : {getattr(las, attr)[i]}")
-    print()  # Ligne vide entre les points
+    print()  
+
 
 
 
