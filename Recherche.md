@@ -103,6 +103,12 @@
 
 Prétraitement Lidar (A.5) → Voxelisation (A.2, A.4) → Optimisation assemblage Lego (A.1, A.4) → Génération des instructions (A.3)
 
+---
+
+## Critique LIDAR
+
+On a trouvé qu'une grue pouvait être confondue avec une végétation forte
+
 
 
 
