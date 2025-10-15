@@ -14,4 +14,7 @@
 - Échange avec nos commanditaires
 - Stockage des données en Numpy / DataFrame
 - Création de MNS depuis des données LiDAR
+
+![Zone_ENSG](images/MNS_ZoneEntiere.png)
+
 - Lecture poussée d’articles scientifiques ciblés 
