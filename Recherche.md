@@ -107,7 +107,8 @@ Prétraitement Lidar (A.5) → Voxelisation (A.2, A.4) → Optimisation assembla
 
 ## Critique LIDAR
 
-On a trouvé qu'une grue pouvait être confondue avec une végétation forte
+Grue confondue avec végétation forte
+(images/grue_lidar.png) (images/grue_tif.png)
 
 
 
