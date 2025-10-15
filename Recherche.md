@@ -108,6 +108,7 @@ Prétraitement Lidar (A.5) → Voxelisation (A.2, A.4) → Optimisation assembla
 ## Critique LIDAR
 
 Grue confondue avec végétation forte
+
 ![Grue LIDAR](images/grue_lidar.png) 
 ![Grue TIFF](images/grue_tif.png)
 
