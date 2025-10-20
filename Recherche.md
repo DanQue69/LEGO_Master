@@ -112,7 +112,9 @@ Grue confondue avec végétation forte
 ![Grue LIDAR](images/grue_lidar.png) 
 ![Grue TIFF](images/grue_tif.png)
 
+## Choix implémentés
 
+Pourquoi Numpy et pas DataFrame ?
 
 
 
