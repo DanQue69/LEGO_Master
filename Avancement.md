@@ -17,4 +17,9 @@
 
 ![Zone_ENSG](images/MNS_ZoneEntiere.png)
 
-- Lecture poussée d’articles scientifiques ciblés 
+- Lecture poussée d’articles scientifiques ciblés
+
+## Mercredi 22 octobre
+- Échange avec nos commanditaires
+- Création d'un modèle voxelisé 'couche par couche'
+- Lecture d'un nouvel article scientifique centré sur les graphes au sein d'un modèle voxelisé
