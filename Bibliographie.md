@@ -57,9 +57,14 @@ Une veille scientifique des méthodes de voxelisation et de génération d’ins
 - **Lien GitHub** : [https://github.com/CreativeMindstorms/brickalize](https://github.com/CreativeMindstorms/brickalize)  
 - **Description** : Package Python permettant de convertir des modèles 3D (format STL) en structures de briques LEGO.
 
+## LDRAW
+
+- **Lien** : [https://www.ldraw.org/](https://www.ldraw.org/)
+
 ## LIDAR documentation 
 
 - **Lien** : [https://geoservices.ign.fr/sites/default/files/2025-03/DC_LiDAR_HD_1-0.pdf](https://geoservices.ign.fr/sites/default/files/2025-03/DC_LiDAR_HD_1-0.pdf)
+
   
 
 
