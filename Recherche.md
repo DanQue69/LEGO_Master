@@ -116,6 +116,11 @@ Grue confondue avec végétation forte
 
 Pourquoi Numpy et pas DataFrame ?
 
+## Voies d'améliorations
+
+- MNT en plus du MNS
+- Echantillonage selon rectangle ou polygone à l'aide de coordonnées
+
 
 
 
