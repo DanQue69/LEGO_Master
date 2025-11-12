@@ -112,6 +112,8 @@ Grue confondue avec végétation forte
 ![Grue LIDAR](images/grue_lidar.png) 
 ![Grue TIFF](images/grue_tif.png)
 
+Déduction que l'axe de vol était ouest-est vu les pertes de données sur les entrées
+
 ## Choix implémentés
 
 Pourquoi Numpy et pas DataFrame ?
