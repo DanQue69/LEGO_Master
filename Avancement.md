@@ -23,3 +23,7 @@
 - Échange avec nos commanditaires
 - Création d'un modèle voxelisé 'couche par couche'
 - Lecture d'un nouvel article scientifique centré sur les graphes au sein d'un modèle voxelisé
+
+## Mercredi 5 novembre
+- Échange avec nos commanditaires
+- Création d'un modèle LEGO grâce à la librairie LDRAW
