@@ -119,7 +119,7 @@ Pourquoi Numpy et pas DataFrame ?
 ## Voies d'améliorations
 
 - MNT en plus du MNS
-- Echantillonage selon rectangle ou polygone à l'aide de coordonnées
+- Prise en compte qu'une dalle LIDAR dans rectangle
 
 
 
