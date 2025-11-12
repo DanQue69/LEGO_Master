@@ -135,7 +135,7 @@ Pourquoi Numpy et pas DataFrame ?
 - classe_maj : classe majoritaire par voxel parmis tous les points, Non classé comprise (à gauche)  
 - class_maj : classe majoritaire par voxel parmis tous les points, Non classée comprise que si c'est la seule présente dans le voxel (à droite)
 
-![diff_class_maj](difference_class_maj_1m.png)
+![diff_class_maj](images/difference_class_maj_1m.png)
 
 
 
