@@ -29,3 +29,7 @@
 - Création d'un modèle LEGO grâce à la librairie LDRAW
 
 ![Zone_ENSG](images/LIDAR_LDRAW_150x100_ENSG_1m_capture-ecran.png)
+
+## Mercredi 12 novembre
+- Échange avec nos commanditaires
+- Création d'un graphe associé au modèle voxelisé 
