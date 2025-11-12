@@ -123,6 +123,12 @@ Pourquoi Numpy et pas DataFrame ?
 - MNT en plus du MNS
 - Prise en compte qu'une dalle LIDAR dans rectangle
 
+## Densité points LIDAR
+
+- dm=5 : arbre OK mais bati non
+- dm=3 : OK
+- dm=1 : un peu de bruit
+
 
 
 
