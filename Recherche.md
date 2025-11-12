@@ -128,6 +128,12 @@ Pourquoi Numpy et pas DataFrame ?
 - dm=5 : arbre OK mais bati non
 - dm=3 : OK
 - dm=1 : un peu de bruit
+- 
+
+## Classe majoritaire 
+
+- classe_maj : classe majoritaire par voxel parmis tous les points, Non classé comprise (à gauche)  
+- class_maj : classe majoritaire par voxel parmis tous les points, Non classée comprise que si c'est la seule présente dans le voxel (à droite) 
 
 
 
