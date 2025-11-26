@@ -1,82 +1,63 @@
 ```mermaid
 graph TD;
 
-    %% Nœuds principaux
-    A[Lidar données] --> B[données_test_LIDAR.py]
-    A --> C[affichage_LIDAR.py]
-    A --> D[import_LIDAR.py]
+    %% Niveau 0
+    A[Lidar données]
 
-    D --> E[LIDAR_numpy.py]
-    D --> F[LIDAR_DataFrame.py]
+    %% Niveau 1
+    subgraph Niveau1
+        B[données_test_LIDAR.py]
+        C[affichage_LIDAR.py]
+        D[import_LIDAR.py]
+    end
 
-    B --> G[LIDAR_MNS.py]
-    E --> G
-    F --> G
+    %% Niveau 2
+    subgraph Niveau2
+        E[LIDAR_numpy.py]
+        F[LIDAR_DataFrame.py]
+    end
 
-    B --> I[LIDAR_couches.py]
-    E --> I
+    %% Niveau 3
+    subgraph Niveau3
+        G[LIDAR_MNS.py]
+        I[LIDAR_couches.py]
+    end
 
-    I --> J[LIDAR_LDRAW.py]
-    I --> K[LIDAR_graphe.py]
-    K --> J
+    %% Niveau 4
+    subgraph Niveau4
+        J[LIDAR_LDRAW.py]
+        K[LIDAR_graphe.py]
+    end
 
-    G --> H[MNS_TIFF.py]
+    %% Niveau 5
+    H[MNS_TIFF.py]
 
     %% Main externe
     M[main.py]
 
-    %% Notes explicatives
-    B_note(["Contient les tests sur les données LIDAR."])
-    C_note(["Gère l'affichage des données LIDAR."])
-    D_note(["Importe les données LIDAR pour traitement."])
-    E_note(["Transforme les données en tableaux Numpy."])
-    F_note(["Transforme les données en DataFrame pandas."])
-    G_note(["Génère le Modèle Numérique de Surface (MNS)."])
-    H_note(["Crée le fichier MNS au format TIFF."])
-    I_note(["Crée les différentes couches LIDAR."])
-    J_note(["Crée le fichier LDraw pour visualisation."])
-    K_note(["Génère le graphe des données LIDAR."])
-    M_note(["Point d'entrée principal de l'application."])
+    %% Connexions
+    A --> B
+    A --> C
+    A --> D
 
-    %% Connexion notes
-    B --> B_note
-    C --> C_note
-    D --> D_note
-    E --> E_note
-    F --> F_note
-    G --> G_note
-    H --> H_note
-    I --> I_note
-    J --> J_note
-    K --> K_note
-    M --> M_note
+    D --> E
+    D --> F
 
-    %% Styles des couleurs
-    style A fill:#9f6,stroke:#333,stroke-width:2px
-    style B fill:#ccc,stroke:#333,stroke-width:1px
-    style C fill:#ccc,stroke:#333,stroke-width:1px
-    style D fill:#ccc,stroke:#333,stroke-width:1px
-    style E fill:#ccc,stroke:#333,stroke-width:1px
-    style F fill:#ccc,stroke:#333,stroke-width:1px
-    style G fill:#ccc,stroke:#333,stroke-width:1px
-    style H fill:#ccc,stroke:#333,stroke-width:1px
-    style I fill:#ccc,stroke:#333,stroke-width:1px
-    style J fill:#ccc,stroke:#333,stroke-width:1px
-    style K fill:#ccc,stroke:#333,stroke-width:1px
-    style M fill:#f9d,stroke:#333,stroke-width:2px
+    B --> G
+    E --> G
+    F --> G
 
-    style B_note fill:#fff,stroke:#999,stroke-width:1px
-    style C_note fill:#fff,stroke:#999,stroke-width:1px
-    style D_note fill:#fff,stroke:#999,stroke-width:1px
-    style E_note fill:#fff,stroke:#999,stroke-width:1px
-    style F_note fill:#fff,stroke:#999,stroke-width:1px
-    style G_note fill:#fff,stroke:#999,stroke-width:1px
-    style H_note fill:#fff,stroke:#999,stroke-width:1px
-    style I_note fill:#fff,stroke:#999,stroke-width:1px
-    style J_note fill:#fff,stroke:#999,stroke-width:1px
-    style K_note fill:#fff,stroke:#999,stroke-width:1px
-    style M_note fill:#fff,stroke:#999,stroke-width:1px
+    B --> I
+    E --> I
 
+    I --> J
+    I --> K
+    K --> J
+
+    G --> H
+
+    %% Main.py sur le côté
+    M
 
     
 ```
