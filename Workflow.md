@@ -46,12 +46,12 @@ G --> H
     %% Styles des couleurs
     style A fill:#9f6,stroke:#333,stroke-width:2px
     style B fill:#ccc,stroke:#333,stroke-width:1px
-    style C fill:#ccc,stroke:#333,stroke-width:1px
+    style C fill:#4da6ff,stroke:#333,stroke-width:1px
     style D fill:#ccc,stroke:#333,stroke-width:1px
     style E fill:#ccc,stroke:#333,stroke-width:1px
     style F fill:#f66,stroke:#333,stroke-width:1px
-    style G fill:#ffa500,stroke:#333,stroke-width:2px
-    style H fill:#ffa500,stroke:#333,stroke-width:2px
+    style G fill:#4da6ff,stroke:#333,stroke-width:1px
+    style H fill:#4da6ff,stroke:#333,stroke-width:1px
     style I fill:#ccc,stroke:#333,stroke-width:1px
     style J fill:#ccc,stroke:#333,stroke-width:1px
     style K fill:#ccc,stroke:#333,stroke-width:1px
