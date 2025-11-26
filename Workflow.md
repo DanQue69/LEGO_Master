@@ -1,8 +1,6 @@
 ```mermaid
 graph TD;
 
-graph TD
-
     %% Nœuds principaux
     A[Lidar données] --> B[données_test_LIDAR.py]
     A --> C[affichage_LIDAR.py]
