@@ -1,7 +1,7 @@
 ```mermaid 
 graph TD;
 
-A[Lidar données]
+A[Données LIDAR]
 
 subgraph L1[" "]
     B[donnees_test_LIDAR.py]
