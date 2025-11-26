@@ -49,9 +49,9 @@ G --> H
     style C fill:#ccc,stroke:#333,stroke-width:1px
     style D fill:#ccc,stroke:#333,stroke-width:1px
     style E fill:#ccc,stroke:#333,stroke-width:1px
-    style F fill:#ccc,stroke:#333,stroke-width:1px
-    style G fill:#ccc,stroke:#333,stroke-width:1px
-    style H fill:#ccc,stroke:#333,stroke-width:1px
+    style F fill:#f66,stroke:#333,stroke-width:1px
+    style G fill:#ffa500,stroke:#333,stroke-width:2px
+    style H fill:#ffa500,stroke:#333,stroke-width:2px
     style I fill:#ccc,stroke:#333,stroke-width:1px
     style J fill:#ccc,stroke:#333,stroke-width:1px
     style K fill:#ccc,stroke:#333,stroke-width:1px
