@@ -1,14 +1,28 @@
 ```mermaid
-  graph TD;
-      A[Début] --> B{Décision ?};
-      A --> C[Option C];
-      B --> D[Fin B];
-      C --> D;
-  
-      %% Styles
-      style A fill:#f9f,stroke:#333,stroke-width:2px
-      style B fill:#bbf,stroke:#f66,stroke-width:2px
-      style C fill:#bfb,stroke:#333,stroke-width:2px
-      style D fill:#ffb,stroke:#333,stroke-width:2px
+graph TD
+    title["Workflow Lego Master"]
+
+    A[Lidar données] --> B[données_test_LIDAR.py]
+    A --> C[affichage_LIDAR.py]
+    A --> D[import_LIDAR.py]
+
+    %% Notes explicatives
+    B_note(["Ce fichier contient les tests sur les données LIDAR."])
+    C_note(["Ce fichier gère l'affichage des données LIDAR."])
+    D_note(["Ce fichier importe les données LIDAR pour le traitement."])
+
+    B --> B_note
+    C --> C_note
+    D --> D_note
+
+    %% Styles des couleurs
+    style A fill:#9f6,stroke:#333,stroke-width:2px
+    style B fill:#ccc,stroke:#333,stroke-width:1px
+    style C fill:#ccc,stroke:#333,stroke-width:1px
+    style D fill:#ccc,stroke:#333,stroke-width:1px
+    style B_note fill:#fff,stroke:#999,stroke-width:1px
+    style C_note fill:#fff,stroke:#999,stroke-width:1px
+    style D_note fill:#fff,stroke:#999,stroke-width:1px
+
     
 ```
