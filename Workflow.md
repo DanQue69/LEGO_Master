@@ -43,19 +43,20 @@ K --> J
 G --> H
 
 
-    %% Styles des couleurs
-    style A fill:#9f6,stroke:#333,stroke-width:2px
-    style B fill:#ccc,stroke:#333,stroke-width:1px
-    style C fill:#4da6ff,stroke:#333,stroke-width:1px
-    style D fill:#ccc,stroke:#333,stroke-width:1px
-    style E fill:#ccc,stroke:#333,stroke-width:1px
-    style F fill:#f66,stroke:#333,stroke-width:1px
-    style G fill:#4da6ff,stroke:#333,stroke-width:1px
-    style H fill:#4da6ff,stroke:#333,stroke-width:1px
-    style I fill:#ccc,stroke:#333,stroke-width:1px
-    style J fill:#ccc,stroke:#333,stroke-width:1px
-    style K fill:#ccc,stroke:#333,stroke-width:1px
-    style M fill:#f9d,stroke:#333,stroke-width:2px
+%% Styles des couleurs
+style A fill:#9f6,stroke:#333,stroke-width:2px        
+style B fill:#4da6ff,stroke:#333,stroke-width:1px    
+style C fill:#ccc,stroke:#333,stroke-width:1px       
+style D fill:#4da6ff,stroke:#333,stroke-width:1px   
+style E fill:#4da6ff,stroke:#333,stroke-width:1px    
+style F fill:#ff4d4d,stroke:#333,stroke-width:1px    
+style G fill:#ccc,stroke:#333,stroke-width:1px       
+style H fill:#ccc,stroke:#333,stroke-width:1px       
+style I fill:#4da6ff,stroke:#333,stroke-width:1px   
+style J fill:#4da6ff,stroke:#333,stroke-width:1px   
+style K fill:#4da6ff,stroke:#333,stroke-width:1px    
+style M fill:#4da6ff,stroke:#333,stroke-width:2px    
+
 
     
 ```
