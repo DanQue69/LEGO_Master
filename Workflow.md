@@ -60,5 +60,32 @@ graph TD;
     M
 
 
+    %% Styles des couleurs
+    style A fill:#9f6,stroke:#333,stroke-width:2px
+    style B fill:#ccc,stroke:#333,stroke-width:1px
+    style C fill:#ccc,stroke:#333,stroke-width:1px
+    style D fill:#ccc,stroke:#333,stroke-width:1px
+    style E fill:#ccc,stroke:#333,stroke-width:1px
+    style F fill:#ccc,stroke:#333,stroke-width:1px
+    style G fill:#ccc,stroke:#333,stroke-width:1px
+    style H fill:#ccc,stroke:#333,stroke-width:1px
+    style I fill:#ccc,stroke:#333,stroke-width:1px
+    style J fill:#ccc,stroke:#333,stroke-width:1px
+    style K fill:#ccc,stroke:#333,stroke-width:1px
+    style M fill:#f9d,stroke:#333,stroke-width:2px
+
+    style B_note fill:#fff,stroke:#999,stroke-width:1px
+    style C_note fill:#fff,stroke:#999,stroke-width:1px
+    style D_note fill:#fff,stroke:#999,stroke-width:1px
+    style E_note fill:#fff,stroke:#999,stroke-width:1px
+    style F_note fill:#fff,stroke:#999,stroke-width:1px
+    style G_note fill:#fff,stroke:#999,stroke-width:1px
+    style H_note fill:#fff,stroke:#999,stroke-width:1px
+    style I_note fill:#fff,stroke:#999,stroke-width:1px
+    style J_note fill:#fff,stroke:#999,stroke-width:1px
+    style K_note fill:#fff,stroke:#999,stroke-width:1px
+    style M_note fill:#fff,stroke:#999,stroke-width:1px
+
+
     
 ```
