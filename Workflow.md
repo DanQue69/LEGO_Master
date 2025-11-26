@@ -6,9 +6,9 @@ graph TD;
     A --> D[import_LIDAR.py]
 
     %% Notes explicatives
-    B_note(["Ce fichier contient les tests sur les données LIDAR."])
-    C_note(["Ce fichier gère l'affichage des données LIDAR."])
-    D_note(["Ce fichier importe les données LIDAR pour le traitement."])
+    B_note([""])
+    C_note([""])
+    D_note([""])
 
     B --> B_note
     C --> C_note
