@@ -6,9 +6,9 @@ graph TD;
     A --> D[import_LIDAR.py]
 
     %% Notes explicatives
-    B_note([""])
-    C_note([""])
-    D_note([""])
+    B_note([" "])
+    C_note([" "])
+    D_note([" "])
 
     B --> B_note
     C --> C_note
