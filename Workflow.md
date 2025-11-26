@@ -5,26 +5,26 @@ graph TD;
     A[Lidar données]
 
     %% Niveau 1
-    subgraph Niveau1
+    subgraph
         B[données_test_LIDAR.py]
         C[affichage_LIDAR.py]
         D[import_LIDAR.py]
     end
 
     %% Niveau 2
-    subgraph Niveau2
+    subgraph
         E[LIDAR_numpy.py]
         F[LIDAR_DataFrame.py]
     end
 
     %% Niveau 3
-    subgraph Niveau3
+    subgraph
         G[LIDAR_MNS.py]
         I[LIDAR_couches.py]
     end
 
     %% Niveau 4
-    subgraph Niveau4
+    subgraph
         J[LIDAR_LDRAW.py]
         K[LIDAR_graphe.py]
     end
@@ -59,7 +59,6 @@ graph TD;
     %% Main.py sur le côté
     M
 
-
     %% Styles des couleurs
     style A fill:#9f6,stroke:#333,stroke-width:2px
     style B fill:#ccc,stroke:#333,stroke-width:1px
@@ -73,9 +72,6 @@ graph TD;
     style J fill:#ccc,stroke:#333,stroke-width:1px
     style K fill:#ccc,stroke:#333,stroke-width:1px
     style M fill:#f9d,stroke:#333,stroke-width:2px
-
-
-
 
     
 ```
