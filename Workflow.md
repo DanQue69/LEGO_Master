@@ -9,8 +9,12 @@ graph TD;
     D --> E[LIDAR_numpy.py]
     D --> F[LIDAR_DataFrame.py]
 
-    E --> G[LIDAR_MNS.py]
+    B --> G[LIDAR_MNS.py]
+    E --> G
     F --> G
+
+    B --> I[LIDAR_couches.py]
+    E --> I
 
     G --> H[MNS_TIFF.py]
 
@@ -22,6 +26,7 @@ graph TD;
     F_note(["Transforme les données en DataFrame pandas."])
     G_note(["Génère le Modèle Numérique de Surface (MNS)."])
     H_note(["Crée le fichier MNS au format TIFF."])
+    I_note(["Crée les différentes couches LIDAR."])
 
     %% Connexion notes
     B --> B_note
@@ -31,6 +36,7 @@ graph TD;
     F --> F_note
     G --> G_note
     H --> H_note
+    I --> I_note
 
     %% Styles des couleurs
     style A fill:#9f6,stroke:#333,stroke-width:2px
@@ -41,6 +47,8 @@ graph TD;
     style F fill:#ccc,stroke:#333,stroke-width:1px
     style G fill:#ccc,stroke:#333,stroke-width:1px
     style H fill:#ccc,stroke:#333,stroke-width:1px
+    style I fill:#ccc,stroke:#333,stroke-width:1px
+
     style B_note fill:#fff,stroke:#999,stroke-width:1px
     style C_note fill:#fff,stroke:#999,stroke-width:1px
     style D_note fill:#fff,stroke:#999,stroke-width:1px
@@ -48,6 +56,8 @@ graph TD;
     style F_note fill:#fff,stroke:#999,stroke-width:1px
     style G_note fill:#fff,stroke:#999,stroke-width:1px
     style H_note fill:#fff,stroke:#999,stroke-width:1px
+    style I_note fill:#fff,stroke:#999,stroke-width:1px
+
 
 
     
