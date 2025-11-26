@@ -42,3 +42,6 @@
 ## Mercredi 26 novembre
 - Mise en commun du pseudo-code et des implémentations précédentes
 - Création du workflow
+- Création d'un premier modèle LEGO filtré
+
+![Zone_ENSG](images/LIDAR_LDRAW_150x100_ENSG_1m_nonclasse-filtreclasses-filtresol-rajoutsol_classif_capture-ecran.png)
