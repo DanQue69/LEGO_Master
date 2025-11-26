@@ -1,65 +1,47 @@
 ```mermaid 
 graph TD;
 
-    %% Niveau 0
-    A[Lidar données]
+A[Lidar données]
 
-    %% Niveau 1
-    subgraph L1[""]  
-        B[données_test_LIDAR.py]
-        C[affichage_LIDAR.py]
-        D[import_LIDAR.py]
-    end
+subgraph L1[" "]
+    B[données_test_LIDAR.py]
+    C[affichage_LIDAR.py]
+    D[import_LIDAR.py]
+end
 
-    %% Niveau 2
-    subgraph L2[""]
-        E[LIDAR_numpy.py]
-        F[LIDAR_DataFrame.py]
-    end
+subgraph L2[" "]
+    E[LIDAR_numpy.py]
+    F[LIDAR_DataFrame.py]
+end
 
-    %% Niveau 3
-    subgraph L3[""]
-        G[LIDAR_MNS.py]
-        I[LIDAR_couches.py]
-    end
+subgraph L3[" "]
+    G[LIDAR_MNS.py]
+    I[LIDAR_couches.py]
+end
 
-    %% Niveau 4
-    subgraph L4[""]
-        J[LIDAR_LDRAW.py]
-        K[LIDAR_graphe.py]
-    end
+subgraph L4[" "]
+    J[LIDAR_LDRAW.py]
+    K[LIDAR_graphe.py]
+end
 
-    %% Niveau 5
-    H[MNS_TIFF.py]
+H[MNS_TIFF.py]
+M[main.py]
 
-    %% Main externe
-    M[main.py]
+A --> B
+A --> C
+A --> D
+D --> E
+D --> F
+B --> G
+E --> G
+F --> G
+B --> I
+E --> I
+I --> J
+I --> K
+K --> J
+G --> H
 
-    %% Connexions
-    A --> B
-    A --> C
-    A --> D
-
-    D --> E
-    D --> F
-
-    B --> G
-    E --> G
-    F --> G
-
-    B --> I
-    E --> I
-
-    I --> J
-    I --> K
-    K --> J
-
-    G --> H
-
-
-
-    %% Main.py sur le côté
-    M
 
     %% Styles des couleurs
     style A fill:#9f6,stroke:#333,stroke-width:2px
