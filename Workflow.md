@@ -1,7 +1,7 @@
 ```mermaid
 graph TD;
 
-    A[Données LIDAR] --> B[données_test_LIDAR.py]
+    A[Données LIDAR] --> B[donnees_test_LIDAR.py]
     A --> C[affichage_LIDAR.py]
     A --> D[import_LIDAR.py]
 
