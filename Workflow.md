@@ -1,8 +1,7 @@
 ```mermaid
-graph TD
-    title["Workflow Lego Master"]
+graph TD;
 
-    A[Lidar données] --> B[données_test_LIDAR.py]
+    A[Données LIDAR] --> B[données_test_LIDAR.py]
     A --> C[affichage_LIDAR.py]
     A --> D[import_LIDAR.py]
 
