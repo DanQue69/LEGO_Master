@@ -1,4 +1,4 @@
-```mermaid
+```mermaid 
 graph TD;
 
     A[Lidar données]
