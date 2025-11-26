@@ -32,4 +32,13 @@
 
 ## Mercredi 12 novembre
 - Échange avec nos commanditaires
-- Création d'un graphe associé au modèle voxelisé 
+- Création d'un graphe associé au modèle voxelisé
+
+## Mercredi 19 novembre
+- Échange avec nos commanditaires
+- Création du pseudo-code de l'algorithme merge et fonction coût
+- Filtrage des données LIDAR à l'aide de graphe
+
+## Mercredi 26 novembre
+- Mise en commun du pseudo-code et des implémentations précédentes
+- Création du workflow
