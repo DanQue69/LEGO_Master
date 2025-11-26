@@ -5,7 +5,7 @@ graph TD;
     A[Lidar données]
 
     %% Niveau 1
-    subgraph L1[""]  %% sous-graph vide pour GitHub
+    subgraph L1[""]  
         B[données_test_LIDAR.py]
         C[affichage_LIDAR.py]
         D[import_LIDAR.py]
