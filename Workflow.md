@@ -3,23 +3,23 @@ graph TD;
 
     A[Lidar données]
 
-    subgraph Niveau1
+    subgraph 
         B[données_test_LIDAR.py]
         C[affichage_LIDAR.py]
         D[import_LIDAR.py]
     end
 
-    subgraph Niveau2
+    subgraph 
         E[LIDAR_numpy.py]
         F[LIDAR_DataFrame.py]
     end
 
-    subgraph Niveau3
+    subgraph 
         G[LIDAR_MNS.py]
         I[LIDAR_couches.py]
     end
 
-    subgraph Niveau4
+    subgraph 
         J[LIDAR_LDRAW.py]
         K[LIDAR_graphe.py]
     end
