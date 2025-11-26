@@ -5,29 +5,21 @@ graph TD;
     A[Lidar données]
 
     %% Niveau 1
-    subgraph
-        B[données_test_LIDAR.py]
-        C[affichage_LIDAR.py]
-        D[import_LIDAR.py]
-    end
+    B[données_test_LIDAR.py]
+    C[affichage_LIDAR.py]
+    D[import_LIDAR.py]
 
     %% Niveau 2
-    subgraph
-        E[LIDAR_numpy.py]
-        F[LIDAR_DataFrame.py]
-    end
+    E[LIDAR_numpy.py]
+    F[LIDAR_DataFrame.py]
 
     %% Niveau 3
-    subgraph
-        G[LIDAR_MNS.py]
-        I[LIDAR_couches.py]
-    end
+    G[LIDAR_MNS.py]
+    I[LIDAR_couches.py]
 
     %% Niveau 4
-    subgraph
-        J[LIDAR_LDRAW.py]
-        K[LIDAR_graphe.py]
-    end
+    J[LIDAR_LDRAW.py]
+    K[LIDAR_graphe.py]
 
     %% Niveau 5
     H[MNS_TIFF.py]
@@ -55,6 +47,7 @@ graph TD;
     K --> J
 
     G --> H
+
 
     %% Main.py sur le côté
     M
