@@ -1,0 +1,708 @@
+# === Importations ===
+
+import numpy as np
+import networkx as nx
+
+from donnees_test_LIDAR import LIDAR_test, LIDAR_test_rectangle
+from import_LIDAR import laz_to_las
+from LIDAR_numpy import LIDAR_numpy_utile
+from LIDAR_couches import LIDAR_couches, LIDAR_couches_LEGO, LIDAR_couches_LEGO_LDRAW
+
+
+
+
+
+# === Fonctions principales ===
+
+def voxel_graphe(counts, class_maj, densite_min=1):
+    """
+    Crée un graphe 6-connexe à partir d’un modèle voxelisé LiDAR.
+
+    Chaque voxel plein devient un nœud avec :
+        - coord : position (y, x, z)
+        - class_maj : classe majoritaire du voxel
+
+    Paramètres
+    ----------
+    counts : np.ndarray
+        Tableau 3D contenant le nombre de points LiDAR par voxel.
+    class_maj : np.ndarray
+        Tableau 3D des classes majoritaires par voxel.
+    densite_min : int
+        Seuil minimal de densité pour qu’un voxel soit considéré "plein".
+
+    Retour
+    ------
+    G : networkx.Graph
+        Graphe 6-connexe des voxels pleins avec attributs.
+    """
+
+    # --- Voxels pleins ---
+    mask = counts >= densite_min
+    coords = np.argwhere(mask)
+    coord_tuples = [tuple(map(int, c)) for c in coords] 
+    id_map = {coord: i for i, coord in enumerate(coord_tuples)}
+
+    # --- Voisinage 6-connexe ---
+    voisins = np.array([
+        [1, 0, 0], [-1, 0, 0],
+        [0, 1, 0], [0, -1, 0],
+        [0, 0, 1], [0, 0, -1]
+    ])
+    voisins_coords = (coords[:, None, :] + voisins[None, :, :]).reshape(-1, 3)
+
+    # --- Arêtes entre voxels pleins ---
+    plein_set = set(coord_tuples)
+    voisin_pairs = [
+        (tuple(map(int, c1)), tuple(map(int, c2)))
+        for c1, c2 in zip(np.repeat(coords, 6, axis=0), voisins_coords)
+        if tuple(map(int, c2)) in plein_set
+    ]
+    aretes = [(id_map[a], id_map[b]) for a, b in voisin_pairs]
+
+    # --- Création du graphe ---
+    G = nx.Graph()
+    G.add_nodes_from(range(len(coords)))
+    G.add_edges_from(aretes)
+
+    # --- Attributs clairs ---
+    nx.set_node_attributes(G, {i: (int(coords[i][1]), int(coords[i][0]), int(coords[i][2])) for i in range(len(coords))}, name='coord')
+    nx.set_node_attributes(G, {i: int(class_maj[tuple(coords[i])]) for i in range(len(coords))}, name='class_maj')
+
+    print(f"Graphe créé : {len(G.nodes())} nœuds, {len(G.edges())} arêtes.")
+    return G
+
+
+
+def corriger_voxels_non_classes_iteratif(G, class_non_classe=1, classes_a_propager=[6], class_sol=2, max_iter=5):
+    """
+    Corrige les voxels non classés (1) par propagation itérative de classes 
+    spécifiques (ex: bâtiments) à partir de leurs voisins 6-connexes.
+
+    Paramètres
+    ----------
+    G : networkx.Graph
+        Graphe voxelisé.
+    class_non_classe : int
+        Code de la classe 'non classé'.
+    classes_a_propager : list[int]
+        Liste des classes à propager (ex: bâtiments, végétation…).
+    class_sol : int
+        Classe sol, qu’on ne doit pas propager.
+    max_iter : int
+        Nombre maximum d’itérations.
+
+    Retour
+    ------
+    G_corr : networkx.Graph
+        Graphe corrigé.
+    """
+
+    G_corr = G.copy()
+    
+    for it in range(max_iter):
+        nodes_nc = [n for n, d in G_corr.nodes(data=True) if d['class_maj'] == class_non_classe]
+        if not nodes_nc:
+            break  # Plus de voxels non classés
+
+        changements = 0
+
+        for n in nodes_nc:
+            voisins = list(G_corr.neighbors(n))
+            classes_voisins = [
+                G_corr.nodes[v]['class_maj']
+                for v in voisins
+                if G_corr.nodes[v]['class_maj'] in classes_a_propager
+            ]
+
+            if classes_voisins:
+                c_new = max(set(classes_voisins), key=classes_voisins.count)
+                G_corr.nodes[n]['class_maj'] = c_new
+                changements += 1
+
+        if changements == 0:
+            break  # Stabilisation atteinte
+
+    print(f"Propagation terminée après {it+1} itérations.")
+    return G_corr
+
+
+
+def graphe_filtre_classes(G, classes_gardees=[1, 2, 3, 4, 5, 6]):
+    """
+    Filtre le graphe pour ne conserver que les voxels dont la classe
+    appartient à `classes_gardees`.
+
+    Paramètres
+    ----------
+    G : networkx.Graph
+    classes_gardees : liste d'int
+        Classes conservées : [1, 2, 3, 4, 5, 6] => NON_CLASSE + SOL + VÉGÉTATIONS(basse, moyenne, haute) + BÂTIMENT
+
+    Retour
+    ------
+    G_filtre : Graph
+        Graphe réduit.
+    """
+
+    nodes_valides = [
+        n for n, d in G.nodes(data=True)
+        if d.get('class_maj') in classes_gardees
+    ]
+
+    G_filtre = G.subgraph(nodes_valides).copy()
+
+    print(f"Graphe filtré classes {classes_gardees} : {len(G_filtre.nodes())} nœuds")
+    return G_filtre
+
+
+
+def graphe_filtre_sol(G, class_sol=2):
+    """
+    Supprime les composants du graphe non connectés à un voxel de classe 'sol'.
+
+    Paramètres
+    ----------
+    G : networkx.Graph
+        Graphe voxelisé.
+    class_sol : int
+        Code de la classe 'sol' dans la classification LIDAR.
+
+    Retour
+    ------
+    G_filtre : networkx.Graph
+        Graphe réduit, ne contenant que les composants connectés au sol.
+    """
+
+    # Trouver les nœuds de classe 'sol'
+    nodes_sol = [n for n, d in G.nodes(data=True) if d.get('class_maj') == class_sol]
+
+    # Identifier les composantes connexes
+    composantes = list(nx.connected_components(G))
+
+    # Garder celles qui contiennent au moins un voxel de sol
+    composantes_valides = [
+        c for c in composantes if any(n in nodes_sol for n in c)
+    ]
+
+    # Fusionner les composantes valides
+    nodes_valides = set().union(*composantes_valides)
+    G_filtre = G.subgraph(nodes_valides).copy()
+
+    print(f"Graphe filtré : {len(G_filtre.nodes())} nœuds, {len(G_filtre.edges())} arêtes.")
+    return G_filtre
+
+
+
+def ajouter_sol_coque_pillier(G, class_sol=2, class_bat=3, n_min=2, pillar_step=4):
+    """
+    Propagation du sol avec propagation de la HAUTEUR.
+    + OPTIMISATION COQUE : Ne conserve qu'une "coque" du sol.
+    + STRUCTURE : Garde des piliers verticaux réguliers pour la solidité.
+    
+    Paramètres additionnels :
+    pillar_step : int
+        Intervalle entre les piliers (ex: 4 = un pilier tous les 4 voxels).
+    """
+    import numpy as np
+    import networkx as nx
+
+    # 1. Récupération des données
+    coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
+    classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
+    
+    if len(coords) == 0:
+        return G.copy()
+
+    # 2. Décalage Sparse -> Dense
+    min_coords = coords.min(axis=0)
+    coords_shifted = coords - min_coords 
+    nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
+    
+    # 3. Allocation grille
+    grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
+    grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
+
+    # 4. Masques Initiaux et Propagation (Logique inchangée)
+    sol_mask = (grid == class_sol)
+    bat_mask = (grid == class_bat)
+    z_indices = np.arange(nz_max)
+
+    # Carte des hauteurs du sol (Z Max)
+    z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    sol_exist = sol_mask.any(axis=2)
+    if np.any(sol_exist):
+        z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
+
+    # Remplissage vertical initial
+    sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
+    grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
+    sol_mask = (grid == class_sol)
+
+    # Intérieur vs Extérieur
+    interior_mask = bat_mask.any(axis=2)
+    processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
+
+    # --- Propagation horizontale ---
+    voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+    changed = True
+    
+    while changed:
+        changed = False
+        sol_xy = sol_mask.any(axis=2).astype(np.int8)
+        neighbor_count = np.zeros_like(sol_xy)
+        neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
+        
+        for dx, dy in voisins8:
+            shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
+            neighbor_count += shifted_sol
+            shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
+            valid_h = shifted_h * shifted_sol
+            neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
+
+        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+
+        if np.any(candidate_cols):
+            changed = True
+            processed_mask[candidate_cols] = True
+            xs, ys = np.where(candidate_cols)
+            z_targets = neighbor_max_z[xs, ys]
+            
+            for x, y, zt in zip(xs, ys, z_targets):
+                if zt < 0: continue
+                col_slice = grid[x, y, :zt+1]
+                mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                col_slice[mask_writable] = class_sol
+                z_height_map[x, y] = zt
+            
+            sol_mask = (grid == class_sol)
+
+    xs, ys = np.where(interior_mask)
+    if len(xs) > 0:
+        z_tops = z_height_map[xs, ys]
+        for x, y, zt in zip(xs, ys, z_tops):
+             if zt > 0:
+                 col_slice = grid[x, y, :zt+1]
+                 mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                 col_slice[mask_writable] = class_sol
+
+
+    sol_final_mask = (grid == class_sol)
+    is_internal = sol_final_mask.copy()
+    
+    # Vérification des 6 voisins par décalage (slicing)
+    # Axe X
+    is_internal[:-1, :, :] &= sol_final_mask[1:, :, :]  
+    is_internal[1:, :, :]  &= sol_final_mask[:-1, :, :]  
+    # Axe Y
+    is_internal[:, :-1, :] &= sol_final_mask[:, 1:, :]  
+    is_internal[:, 1:, :]  &= sol_final_mask[:, :-1, :]  
+    # Axe Z
+    is_internal[:, :, :-1] &= sol_final_mask[:, :, 1:]  
+    is_internal[:, :, 1:]  &= sol_final_mask[:, :, :-1]  
+    
+    # Les bords absolus ne sont jamais internes
+    is_internal[0, :, :] = False; is_internal[-1, :, :] = False
+    is_internal[:, 0, :] = False; is_internal[:, -1, :] = False
+    is_internal[:, :, 0] = False; is_internal[:, :, -1] = False
+
+    if pillar_step > 0:
+        is_internal[::pillar_step, ::pillar_step, :] = False
+    grid[is_internal] = 0
+
+    # 5. Reconstruction Graph
+    G_sol = nx.Graph()
+    voxels_finaux = np.argwhere(grid != 0)
+    counter = 0
+    nodes_list = []
+    
+    for x_loc, y_loc, z_loc in voxels_finaux:
+        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
+        val = int(grid[x_loc, y_loc, z_loc])
+        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
+        counter += 1
+        
+    G_sol.add_nodes_from(nodes_list)
+    return G_sol
+
+
+def ajouter_sol_coque(G, class_sol=2, class_bat=3, n_min=2):
+    """
+    Propagation du sol avec propagation de la HAUTEUR (bouche les trous sous les objets).
+    + OPTIMISATION : Ne conserve qu'une "coque" (shell) du sol pour économiser les briques.
+    """
+    import numpy as np
+    import networkx as nx
+
+    # 1. Récupération des données
+    coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
+    classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
+    
+    if len(coords) == 0:
+        return G.copy()
+
+    # 2. Décalage Sparse -> Dense
+    min_coords = coords.min(axis=0)
+    coords_shifted = coords - min_coords 
+    nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
+    
+    # 3. Allocation grille
+    grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
+    grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
+
+    # 4. Masques Initiaux et Propagation (Logique inchangée)
+    sol_mask = (grid == class_sol)
+    bat_mask = (grid == class_bat)
+    z_indices = np.arange(nz_max)
+
+    # Carte des hauteurs du sol (Z Max)
+    z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    sol_exist = sol_mask.any(axis=2)
+    if np.any(sol_exist):
+        z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
+
+    # Remplissage vertical initial
+    sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
+    grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
+    sol_mask = (grid == class_sol)
+
+    # Intérieur vs Extérieur
+    interior_mask = bat_mask.any(axis=2)
+    processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
+
+    # --- Propagation horizontale ---
+    voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+    changed = True
+    
+    while changed:
+        changed = False
+        sol_xy = sol_mask.any(axis=2).astype(np.int8)
+        neighbor_count = np.zeros_like(sol_xy)
+        neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
+        
+        for dx, dy in voisins8:
+            shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
+            neighbor_count += shifted_sol
+            shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
+            valid_h = shifted_h * shifted_sol
+            neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
+
+        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+
+        if np.any(candidate_cols):
+            changed = True
+            processed_mask[candidate_cols] = True
+            xs, ys = np.where(candidate_cols)
+            z_targets = neighbor_max_z[xs, ys]
+            
+            for x, y, zt in zip(xs, ys, z_targets):
+                if zt < 0: continue
+                col_slice = grid[x, y, :zt+1]
+                mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                col_slice[mask_writable] = class_sol
+                z_height_map[x, y] = zt
+            
+            sol_mask = (grid == class_sol)
+
+    xs, ys = np.where(interior_mask)
+    if len(xs) > 0:
+        z_tops = z_height_map[xs, ys]
+        for x, y, zt in zip(xs, ys, z_tops):
+             if zt > 0:
+                 col_slice = grid[x, y, :zt+1]
+                 mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                 col_slice[mask_writable] = class_sol
+
+    sol_final_mask = (grid == class_sol)
+    is_internal = sol_final_mask.copy()
+    
+    # Axe X
+    is_internal[:-1, :, :] &= sol_final_mask[1:, :, :]  # Voisin Droite
+    is_internal[1:, :, :]  &= sol_final_mask[:-1, :, :]  # Voisin Gauche
+    # Axe Y
+    is_internal[:, :-1, :] &= sol_final_mask[:, 1:, :]  # Voisin Arrière
+    is_internal[:, 1:, :]  &= sol_final_mask[:, :-1, :]  # Voisin Avant
+    # Axe Z
+    is_internal[:, :, :-1] &= sol_final_mask[:, :, 1:]  # Voisin Haut
+    is_internal[:, :, 1:]  &= sol_final_mask[:, :, :-1]  # Voisin Bas
+
+    is_internal[0, :, :] = False
+    is_internal[-1, :, :] = False
+    is_internal[:, 0, :] = False
+    is_internal[:, -1, :] = False
+    is_internal[:, :, 0] = False
+    is_internal[:, :, -1] = False
+    
+    grid[is_internal] = 0
+
+    # 5. Reconstruction Graph
+    G_sol = nx.Graph()
+    voxels_finaux = np.argwhere(grid != 0)
+    counter = 0
+    nodes_list = []
+    
+    for x_loc, y_loc, z_loc in voxels_finaux:
+        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
+        val = int(grid[x_loc, y_loc, z_loc])
+        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
+        counter += 1
+        
+    G_sol.add_nodes_from(nodes_list)
+    return G_sol
+
+
+def ajouter_sol_rempli(G, class_sol=2, class_bat=3, n_min=2):
+
+    """
+    Propagation du sol avec propagation.
+    """
+
+    # 1. Récupération des données
+    coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
+    classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
+    
+    if len(coords) == 0:
+        return G.copy()
+
+    # 2. Décalage Sparse -> Dense
+    min_coords = coords.min(axis=0)
+    coords_shifted = coords - min_coords 
+    nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
+    
+    # 3. Allocation grille
+    grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
+    grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
+
+    # 4. Masques Initiaux
+    sol_mask = (grid == class_sol)
+    bat_mask = (grid == class_bat)
+    z_indices = np.arange(nz_max)
+
+    # Carte des hauteurs du sol (Z Max)
+    # Initialisation : 0 là où pas de sol, sinon Z max du sol
+    z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    sol_exist = sol_mask.any(axis=2)
+    if np.any(sol_exist):
+        z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
+
+    # Remplissage vertical initial (sous le sol existant)
+    sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
+    grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
+    sol_mask = (grid == class_sol)
+
+    # Intérieur vs Extérieur
+    interior_mask = bat_mask.any(axis=2)
+    
+    # Masque mémoire pour ne pas boucler indéfiniment
+    processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
+
+    # --- Propagation horizontale ---
+    voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+    changed = True
+    
+    while changed:
+        changed = False
+        
+        # 1. Qui est sol actuellement ?
+        sol_xy = sol_mask.any(axis=2).astype(np.int8)
+        
+        # 2. Compter les voisins sol
+        neighbor_count = np.zeros_like(sol_xy)
+        
+        # 3. Calculer la hauteur MAX des voisins sol (C'est la nouveauté)
+        # On veut savoir : pour chaque case vide, quel est le voisin sol le plus haut ?
+        neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
+        
+        for dx, dy in voisins8:
+            # On décale la carte de présence
+            shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
+            neighbor_count += shifted_sol
+            
+            # On décale la carte des hauteurs
+            shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
+            # On ne garde la hauteur que si c'est un voisin qui EST sol
+            valid_h = shifted_h * shifted_sol # Masquage
+            neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
+
+        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+
+        if np.any(candidate_cols):
+            changed = True
+            processed_mask[candidate_cols] = True
+            
+            xs, ys = np.where(candidate_cols)
+            z_targets = neighbor_max_z[xs, ys]
+            
+            # Remplissage
+            for x, y, zt in zip(xs, ys, z_targets):
+                # On remplit de 0 jusqu'à la hauteur du voisin le plus haut
+                if zt < 0: continue # Sécurité
+                
+                # Tranche de la colonne
+                col_slice = grid[x, y, :zt+1]
+                
+                # On ne remplit QUE le vide (0) ou ce qui est déjà sol (2)
+                # On NE TOUCHE PAS aux bâtiments ou végétation existants au dessus
+                mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                col_slice[mask_writable] = class_sol
+                
+                # Mise à jour de la carte des hauteurs pour cette colonne
+                # La nouvelle hauteur sol est zt (puisqu'on vient de remplir jusqu'à zt)
+                z_height_map[x, y] = zt
+            
+            # Mise à jour du masque global
+            sol_mask = (grid == class_sol)
+
+    xs, ys = np.where(interior_mask)
+    if len(xs) > 0:
+        # On remplit jusqu'au max trouvé lors de l'init ou propagation adjacente
+        z_tops = z_height_map[xs, ys]
+        for x, y, zt in zip(xs, ys, z_tops):
+             if zt > 0:
+                 col_slice = grid[x, y, :zt+1]
+                 mask_writable = (col_slice == 0) | (col_slice == class_sol)
+                 col_slice[mask_writable] = class_sol
+
+    # 5. Reconstruction Graph
+    G_sol = nx.Graph()
+    voxels_finaux = np.argwhere(grid != 0)
+    counter = 0
+    nodes_list = []
+    
+    for x_loc, y_loc, z_loc in voxels_finaux:
+        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
+        val = int(grid[x_loc, y_loc, z_loc])
+        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
+        counter += 1
+        
+    G_sol.add_nodes_from(nodes_list)
+    return G_sol
+
+
+
+def remplir_trous_verticaux(G, classes_batiment=[6]):
+    """
+    Épaissit les murs en remplissant les trous verticaux entre voxels bâtiment.
+    """
+
+    G2 = G.copy()
+
+    # --- Regrouper les voxels par colonne (x, y) ---
+    colonnes = {}
+    for n, d in G.nodes(data=True):
+        x, y, z = d["coord"]
+        colonnes.setdefault((x, y), []).append((z, d['class_maj']))
+
+    # --- Parcourir chaque colonne ---
+    for (x, y), lst in colonnes.items():
+
+        # trier verticalement
+        lst_sorted = sorted(lst, key=lambda t: t[0])
+        Z = [z for z, c in lst_sorted]
+        C = [c for z, c in lst_sorted]
+
+        # trouver les indices où classe = bâtiment
+        idx_bat = [i for i, c in enumerate(C) if c in classes_batiment]
+        if len(idx_bat) < 2:
+            continue  # rien à remplir
+
+        # parcourir les paires successives de voxels bâtiment
+        for i1, i2 in zip(idx_bat[:-1], idx_bat[1:]):
+            z1 = Z[i1]
+            z2 = Z[i2]
+
+            # Trou vertical ?
+            if z2 > z1 + 1:
+                # prendre la classe du voxel supérieur
+                classe = C[i2]
+
+                # Remplir les z manquants
+                for z_new in range(z1 + 1, z2):
+                    node = (x, y, z_new)
+
+                    if node not in G2:
+
+                        G2.add_node(
+                            node,
+                            coord=(x, y, z_new),
+                            class_maj=classe
+                        )
+
+                        # Connectivité verticale
+                        if (x, y, z_new - 1) in G2:
+                            G2.add_edge(node, (x, y, z_new - 1))
+
+                        if (x, y, z_new + 1) in G2:
+                            G2.add_edge(node, (x, y, z_new + 1))
+
+    return G2
+
+
+
+
+def graphe_voxel(G):
+    """
+    Reconstruit les tableaux counts et class_maj à partir d'un graphe voxelisé.
+
+    Les nœuds du graphe doivent avoir les attributs :
+        - 'coord' : tuple (x, y, z) des indices voxel
+        - 'class_maj' : classe majoritaire du voxel
+
+    Paramètres
+    ----------
+    G : networkx.Graph
+        Graphe voxelisé.
+
+    Retour
+    ------
+    counts : np.ndarray
+        Tableau 3D avec le nombre de points par voxel.
+    class_maj : np.ndarray
+        Tableau 3D avec la classe majoritaire de chaque voxel.
+    """
+
+    # --- Récupération des coordonnées et classes depuis le graphe ---
+    coords = np.array([ (data['coord'][1], data['coord'][0], data['coord'][2])  # inverser X/Y pour cohérence
+                        for _, data in G.nodes(data=True) ], dtype=int)
+    classes = np.array([ data['class_maj'] for _, data in G.nodes(data=True) ], dtype=int)
+
+    # --- Dimensions du tableau voxel ---
+    ny, nx, nz = coords.max(axis=0) + 1  # +1 car indices commencent à 0
+
+    # --- Initialisation ---
+    counts = np.zeros((ny, nx, nz), dtype=int)
+    class_maj = np.zeros((ny, nx, nz), dtype=int)
+
+    # --- Remplissage ---
+    for (y, x, z), c in zip(coords, classes):
+        counts[y, x, z] += 1
+        # Priorité : si le voxel contient déjà un autre point non-classé (1), le remplacer
+        if class_maj[y, x, z] == 0 or (class_maj[y, x, z] == 1 and c != 1):
+            class_maj[y, x, z] = c
+
+    return counts, class_maj
+
+
+
+
+
+
+# === Lancement du script ===
+
+if __name__ == "__main__":
+
+    test_LIDAR_numpy = LIDAR_test_rectangle("Data/ENSG/LHD_FXX_0669_6861_PTS_O_LAMB93_IGN69.copc.laz", nb_points=10000000, x_min_coin=669680.0, y_min_coin=6860143.0, longueur_x=150, longueur_y=100)
+
+    counts, class_maj = LIDAR_couches_LEGO_LDRAW(test_LIDAR_numpy, taille_xy=0.5, lego_ratio=1.2, densite_min=1, prefixe_sauvegarde="layer_LEGO_LDRAW")
+
+    G = voxel_graphe(counts, class_maj, densite_min=1)
+
+    # Exemple : afficher les 5 premiers nœuds avec leurs coordonnées de voxel et leur classe
+    for i, noeud in list(G.nodes(data=True))[:5]:
+        print(i, noeud)
+
+    G_filtre = graphe_filtre_sol(G, class_sol=2)
+
+    # Exemple : afficher les 5 premiers nœuds avec leurs coordonnées de voxel et leur classe
+    for i, noeud in list(G_filtre.nodes(data=True))[:5]:
+        print(i, noeud)
