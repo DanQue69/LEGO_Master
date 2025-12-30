@@ -46,7 +46,7 @@ G --> H
 %% Styles des couleurs
 style A fill:#9f6,stroke:#333,stroke-width:2px        
 style B fill:#4da6ff,stroke:#333,stroke-width:1px    
-style C fill:#ccc,stroke:#333,stroke-width:1px       
+style C fill:#4da6ff,stroke:#333,stroke-width:1px      
 style D fill:#4da6ff,stroke:#333,stroke-width:1px   
 style E fill:#4da6ff,stroke:#333,stroke-width:1px    
 style F fill:#ff4d4d,stroke:#333,stroke-width:1px    
