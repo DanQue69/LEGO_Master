@@ -4,7 +4,7 @@ graph TD;
 A[Données LIDAR]
 
 subgraph L1[" "]
-    B[donnees_test_LIDAR.py]
+    B[donnees_echantillonnees_LIDAR.py]
     C[affichage_LIDAR.py]
     D[import_LIDAR.py]
 end
