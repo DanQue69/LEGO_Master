@@ -189,7 +189,7 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
    
 3. Consolidation / Fondations
 
-Choix entre 3 Modes :
+- Choix entre 3 Modes :
 ```python
 TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI" 
 ```
