@@ -169,7 +169,7 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
 
 <br>
 
-1. Correction des Données
+**1. Correction des Données**
 - Fonction : `corriger_voxels_non_classes_iteratif`
 - Rôle : Bouche les trous d'information. Si un voxel est "Non classé" (ex: bruit ou erreur capteur) mais qu'il est entouré de "Bâtiment", il prendra la classe "Bâtiment".
 - Paramètres :
@@ -179,7 +179,7 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
 
 <br>
  
-2. Filtrage Sémantique
+**2. Filtrage Sémantique**
 - Fonction : `graphe_filtre_classes`
 - Rôle : Ne garde que les voxels dont la classe est dans la liste autorisée. Supprime tout le reste.
 - Paramètres :
@@ -187,8 +187,16 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
     - Par défaut `[1, 2, 3, 4, 5, 6]`; 1=Non Classé, 2=Sol, 3=Végétation basse, 4=Végétation moyenne, 5=Végétation haute, 6=Bati
 
 <br>
+
+**3. Filtrage Structurel** 
+- Fonction : `graphe_filtre_sol`
+- Rôle : Supprime les "objets volants". L'algorithme part du sol et parcourt tout le graphe. Tout ce qui n'est pas physiquement relié au sol (bruit dans le ciel, nuages, oiseaux) est supprimé.
+- Paramètres :
+  - `class_sol` (défaut `2`) : L'identifiant de la classe considérée comme le "point d'ancrage" de la maquette.
+
+<br>
    
-3. Consolidation / Fondations
+**4. Consolidation / Fondations**
 - Fonctions : `ajouter_sol_coque_pillier`, `ajouter_sol_coque`, `ajouter_sol_rempli`
 - Rôle : Génère un sol artificiel pour soutenir la maquette.
 ```python
@@ -204,6 +212,13 @@ TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI"
   - `pillar_step` (défaut `4`) : Espacement entre deux piliers (en nombre de voxels).
   - `pillar_width` (défaut `2`) : Largeur du pilier carré (ex: 2 = pilier de 2x2 briques).
   - `n_min` (défaut `2`) : Paramètre de lissage pour la propagation horizontale du sol.
+
+**5. Remplissage des Murs** 
+- Fonction : `remplir_trous_verticaux`
+- Rôle : Scanne les colonnes verticales. S'il détecte un trou entre deux voxels de "Bâtiment":`6` (ex: fenêtre non captée par le LiDAR, zone d'ombre), il le comble pour créer un mur solide.
+- Paramètres :
+  - `classes_batiment` (défaut `[6]`) : Liste des classes considérées comme des murs verticaux.
+
 
 
 
