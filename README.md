@@ -136,7 +136,7 @@ MODE_IMPORT = "MODE_CHOISI"
 
 ### Voxelisation
 
-Réglage des paramètres de voxelisation
+Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches.py`
 
 - `TAILLE_VOXEL` : Résolution au sol (ex: 1.0 = 1 mètre pour une brique 1x1x1).
 
@@ -148,11 +148,13 @@ Réglage des paramètres de voxelisation
 
 ### Visualisation graphique
 
+Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie. Détail dans le fichier `LIDAR_LDRAW.py`.
+
 ```python
 VISUALISATION = "VISUALISATION_CHOISI" 
 ```
 
-`"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur
+`"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur associée à sa classification est disponible dans le fichier `LIDAR_LDRAW.py`.
 
 `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
