@@ -166,11 +166,16 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
 
 1. 
 
+
+
+
+
 <br>
 
 ---
 
 <br>
+
 
 
 
@@ -191,6 +196,10 @@ Vous pouvez visualiser ces fichiers avec :
 - LDView (Visualisation rapide).
 - BrickLink Studio (Rendu photoréaliste et instructions de montage).
 
+
+
+
+
 <br>
 
 ---
@@ -203,6 +212,10 @@ Vous pouvez visualiser ces fichiers avec :
 ## Perspectives et Évolutions
 
 LPub3D
+
+
+
+
 
 <br>
 
