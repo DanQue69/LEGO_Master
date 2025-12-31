@@ -37,10 +37,40 @@ LiDAR_2_LEGO/
 
 ## Installation et Déploiement
 
+### Prérequis
+
+- Git : Pour cloner le projet.
+- Python 3.9 ou supérieur.
+
+### Récupération du projet
+
+Ouvrez un terminal et clonez le dépôt sur votre machine :
 ```bash
 git clone <URL_DU_DEPOT_GIT>
 cd <NOM_DU_DOSSIER_CLONE>
 ```
+
+### Installation des dépendances
+
+Le projet utilise des librairies scientifiques et géospatiales (laspy, lazrs, numpy, networkx, rasterio). Installez-les via pip (présent depuis Python 3.4):
+```bash
+pip install -r requirements
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
