@@ -94,7 +94,7 @@ Ouvrez `main.py` dans votre éditeur de code (VS Code, PyCharm...) et ajustez la
 
 Le traitement complet d'une dalle (1km x 1km) peut être long et gourmand en mémoire. Utilisez les modes d'échantillonnage pour tester vos paramètres :
 
-- `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`.
+- `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `ECHANTILLON_RECTANGLE`.
 
 - `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y.
 
