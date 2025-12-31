@@ -4,7 +4,15 @@ Ce projet propose une chaîne de traitement complète ("pipeline") permettant de
 
 Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le code est optimisé pour traiter les données LiDAR HD de l'IGN (France).
 
+
+
+
+
 ---
+
+
+
+
 
 ## Architecture du projet
 
@@ -33,11 +41,19 @@ LiDAR_2_LEGO/
 └── README.md                  
 ```
 
+
+
+
+
 <br>
 
 ---
 
 <br>
+
+
+
+
 
 ## Installation et Déploiement
 
@@ -79,16 +95,26 @@ Si vous voulez utilisez vos propres données `.laz` :
 NOM_FICHIER = "votre_fichier.laz"
 ```
 
+
+
+
+
 <br>
 
 ---
 
 <br>
 
+
+
+
+
 ## Prise en main et Configuration
 
 Tout le contrôle du projet s'effectue via le fichier `main.py`. Il n'est pas nécessaire de modifier le code source dans `src/`.  
 Ouvrez `main.py` dans votre éditeur de code (VS Code, PyCharm...) et ajustez la section PARAMÈTRES UTILISATEUR selon vos besoins :
+
+<br>
 
 ### Import et Échantillonnage 
 
