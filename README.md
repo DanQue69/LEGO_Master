@@ -112,6 +112,7 @@ NOM_FICHIER = "votre_fichier.laz"
 ## Prise en main et Configuration
 
 Tout le contrôle du projet s'effectue via le fichier `main.py`. Il n'est pas nécessaire de modifier le code source dans `src/`.  
+
 Ouvrez `main.py` dans votre éditeur de code (VS Code, PyCharm...) et ajustez la section PARAMÈTRES UTILISATEUR selon vos besoins :
 
 <br>
