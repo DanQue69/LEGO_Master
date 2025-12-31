@@ -33,4 +33,25 @@ PROJET_RACINE/
 └── README.md                  
 ```
 
+---
+
+## Installation et Déploiement
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
