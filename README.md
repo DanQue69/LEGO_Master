@@ -132,17 +132,56 @@ MODE_IMPORT = "MODE_CHOISI"
 
 - `"COMPLET"` : Traite l'intégralité du fichier `.laz`.
 
+<br>
+
+### Voxelisation
+
+- `TAILLE_VOXEL` : Résolution au sol (ex: 1.0 = 1 mètre pour une brique 1x1x1).
+
+- `LDRAW_RATIO` : Échelle verticale. préréglé à 1.2 qui correspond au ratio standard d'une brique LEGO/LDRAW.
+
+- `DENSITE_MIN` : Densité minimale de points par voxel pour être pris en compte (ex: 1.0 = 1 point LiDAR dans un voxel pour qu'il soir pris en compte).
+
+<br>
+
+### Visualisation graphique
+
+```python
+VISUALISATION = "VISUALISATION_CHOISI" 
+```
+
+`"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur
+
+`"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
 
 
 
 
 
-
-
-
+<br>
 
 ---
+
+<br>
+
+
+
+
+
+## Perspectives et Évolutions
+
+LPub3D
+
+<br>
+
+---
+
+<br>
+
+
+
+
 
 ## Crédits et Licence
 
