@@ -124,17 +124,19 @@ Le traitement complet d'une dalle (1km x 1km) peut être long et gourmand en mé
 MODE_IMPORT = "MODE_CHOISI" 
 ```
 
-- `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `"ECHANTILLON_RECTANGLE"`.
+- `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `"ECHANTILLON_RECTANGLE"`. Détail dans le fichier `affichage_LIDAR.py`.
 
-- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y.
+- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y. Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
 
-- `"ECHANTILLON_CARRE_ALEATOIRE"` : Prend une zone carrée au hasard dans le fichier définie par une longueur (m).
+- `"ECHANTILLON_CARRE_ALEATOIRE"` : Prend une zone carrée au hasard dans le fichier définie par une longueur (m). Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
 
-- `"COMPLET"` : Traite l'intégralité du fichier `.laz`.
+- `"COMPLET"` : Traite l'intégralité du fichier `.laz`. Détail dans le fichier `LIDAR_numpy.py`.
 
 <br>
 
 ### Voxelisation
+
+Réglage des paramètres de voxelisation
 
 - `TAILLE_VOXEL` : Résolution au sol (ex: 1.0 = 1 mètre pour une brique 1x1x1).
 
