@@ -1,0 +1,23 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# --- Données Volumineuses ---
+# On ignore tous les .laz car ils sont trop lourds
+data/*.laz
+# SAUF le exemple.laz qui sert d'exemple
+!data/exemple.laz
+
+# --- Sorties Générées ---
+# On ignore le contenu des outputs pour ne pas polluer l'historique
+outputs/*
+# SAUF le fichier .gitkeep pour garder la structure du dossier
+!outputs/.gitkeep
+
+# --- Système ---
+.DS_Store
+Thumbs.db
