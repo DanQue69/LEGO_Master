@@ -5,8 +5,6 @@ Ce projet propose une chaîne de traitement complète ("pipeline") permettant de
 Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le code est optimisé pour traiter les données LiDAR HD de l'IGN (France).
 
 
-<br>
-
 ---
 
 <br>
