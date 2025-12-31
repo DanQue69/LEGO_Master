@@ -6,7 +6,7 @@ Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le 
 
 ---
 
-### Architecture du projet
+## Architecture du projet
 
 ```text
 PROJET_RACINE/
