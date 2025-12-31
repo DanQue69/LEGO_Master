@@ -72,7 +72,12 @@ pip install -r requirements
 Un fichier `exemple.laz` est présent dans le dossier `data/`, vous pouvez lancer directement le pipeline via `main.py`.
 
 Si vous voulez utilisez vos propres données `.laz` :
-1. Téléchargez une dalle LiDAR HD via le site [Géoservices - IGN](https://cartes.gouv.fr/telechargement/IGNF_NUAGES-DE-POINTS-LIDAR-HD)
+1. Téléchargez une dalle LiDAR HD via le site [Géoservices - IGN](https://cartes.gouv.fr/telechargement/IGNF_NUAGES-DE-POINTS-LIDAR-HD).
+2. Placez le fichier téléchargé ou tout autre fichier `.laz` dans le dossier `data/`.
+3. Ouvrez le fichier `main.py` et modifiez la variable `NOM_FICHIER` :
+```python
+NOM_FICHIER = "votre_fichier.laz"
+```
 
 
 
