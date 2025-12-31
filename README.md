@@ -167,7 +167,12 @@ Réglage des fonctions de traitements structurels avec leurs paramètres associ�
 Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour affiner le résultat :
 
 1. Correction des Données
-Fonction : corriger_voxels_non_classes_iteratif
+- Fonction : `corriger_voxels_non_classes_iteratif`
+- Rôle : Bouche les trous d'information. Si un voxel est "Non classé" (ex: bruit ou erreur capteur) mais qu'il est entouré de "Bâtiment", il prendra la classe "Bâtiment".
+- Paramètres :
+  - class_non_classe (défaut 1) : L'identifiant de la classe à corriger/remplacer.
+  - classes_a_propager (défaut [6]) : Liste des classes "fortes" qui ont le droit d'écraser la classe inconnue (ex: 6 pour Bâti).
+  - max_iter (défaut 5) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
 
 
 
