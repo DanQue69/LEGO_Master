@@ -9,7 +9,7 @@ Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le 
 ## Architecture du projet
 
 ```text
-PROJET_RACINE/
+LiDAR_2_LEGO/
 │
 ├── data/                      # Dossier destiné aux fichiers .laz d'entrée
 │                              # Placez votre fichier .laz ici
