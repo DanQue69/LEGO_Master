@@ -175,12 +175,11 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
   - `max_iter` (défaut `5`) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
  
 2. Filtrage Sémantique
-- Fonction : graphe_filtre_classes(G, ...)
+- Fonction : `graphe_filtre_classes`
 - Rôle : Ne garde que les voxels dont la classe est dans la liste autorisée. Supprime tout le reste.
 - Paramètres :
-  - classes_gardees : Liste des identifiants LAS à conserver.
-    - Exemple : [2, 6] ne garde que le Sol (2) et les Bâtiments (6).
-    - Standard ASPRS : 2=Sol, 3/4/5=Végétation, 6=Bâtiment, 9=Eau.
+  - `classes_gardees` : Liste des identifiants LAS à conserver.
+    - Par défaut `[1, 2, 3, 4, 5, 6]` 1=Non Classé, 2=Sol, 3=Végétation basse, 4=Végétation moyenne, 5=Végétation haute, 6=Bati
 
 
 
