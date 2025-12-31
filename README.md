@@ -4,9 +4,9 @@ Ce projet propose une chaîne de traitement complète ("pipeline") permettant de
 
 Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le code est optimisé pour traiter les données LiDAR HD de l'IGN (France).
 
+<br>
 ---
-
-
+<br>
 
 ## Architecture du projet
 
@@ -35,9 +35,9 @@ LiDAR_2_LEGO/
 └── README.md                  
 ```
 
+<br>
 ---
-
-
+<br>
 
 ## Installation et Déploiement
 
@@ -46,7 +46,7 @@ LiDAR_2_LEGO/
 - Git : Pour cloner le projet.
 - Python 3.9 ou supérieur.
 
-
+<br>
 
 ### Récupération du projet
 
@@ -56,7 +56,7 @@ git clone <URL_DU_DEPOT_GIT>
 cd <NOM_DU_DOSSIER_CLONE>
 ```
 
-
+<br>
 
 ### Installation des dépendances
 
@@ -65,7 +65,7 @@ Le projet utilise des librairies scientifiques et géospatiales (laspy, lazrs, n
 pip install -r requirements
 ```
 
-
+<br>
 
 ### Gestion des données LiDAR
 
