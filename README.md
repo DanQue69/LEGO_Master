@@ -33,7 +33,11 @@ LiDAR_2_LEGO/
 └── README.md                  
 ```
 
+<br>
+
 ---
+
+<br>
 
 ## Installation et Déploiement
 
@@ -42,7 +46,7 @@ LiDAR_2_LEGO/
 - Git : Pour cloner le projet.
 - Python 3.9 ou supérieur.
 
-<sub></sub>
+<br>
 
 ### Récupération du projet
 
