@@ -213,6 +213,8 @@ TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI"
   - `pillar_width` (défaut `2`) : Largeur du pilier carré (ex: 2 = pilier de 2x2 briques).
   - `n_min` (défaut `2`) : Paramètre de lissage pour la propagation horizontale du sol.
 
+<br>
+
 **5. Remplissage des Murs** 
 - Fonction : `remplir_trous_verticaux`
 - Rôle : Scanne les colonnes verticales. S'il détecte un trou entre deux voxels de "Bâtiment":`6` (ex: fenêtre non captée par le LiDAR, zone d'ombre), il le comble pour créer un mur solide.
