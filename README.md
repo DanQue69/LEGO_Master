@@ -95,7 +95,7 @@ Ouvrez `main.py` dans votre éditeur de code (VS Code, PyCharm...) et ajustez la
 Le traitement complet d'une dalle (1km x 1km) peut être long et gourmand en mémoire. Utilisez les modes d'échantillonnage pour tester vos paramètres :
 
 ```python
-MODE_IMPORT = "MODE_CHOISI"
+MODE_IMPORT = "MODE_CHOISI"   Par défaut "AFFICHAGE_INFO_LIDAR"
 ```
 
 - `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `ECHANTILLON_RECTANGLE`.
