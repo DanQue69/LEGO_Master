@@ -79,20 +79,37 @@ Si vous voulez utilisez vos propres données `.laz` :
 NOM_FICHIER = "votre_fichier.laz"
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
+<br>
 
 ---
+
+<br>
+
+## Prise en main et Configuration
+
+Tout le contrôle du projet s'effectue via le fichier `main.py`. Il n'est pas nécessaire de modifier le code source dans `src/`.  
+Ouvrez `main.py` dans votre éditeur de code (VS Code, PyCharm...) et ajustez la section PARAMÈTRES UTILISATEUR selon vos besoins :
+
+### Import et Échantillonnage (MODE_IMPORT)
+
+Le traitement complet d'une dalle (1km x 1km) peut être long et gourmand en mémoire. Utilisez les modes d'échantillonnage pour tester vos paramètres :
+
+- `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`.
+
+- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y.
+
+- `"ECHANTILLON_CARRE_ALEATOIRE"` : Prend une zone carrée au hasard dans le fichier définie par une longueur (m).
+
+- `"COMPLET"` : Traite l'intégralité du fichier `.laz`.
+
+
+
+
+
+
+
+
+
 
 
 ---
