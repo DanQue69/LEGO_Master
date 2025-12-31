@@ -1,4 +1,4 @@
-# Projet LiDAR2LEGO 
+# Projet LiDAR_2_LEGO 
 
 Ce projet propose une chaîne de traitement complète ("pipeline") permettant de convertir des nuages de points LiDAR (format .laz) en modèles 3D constitués de briques LEGO (format .ldr).
 
