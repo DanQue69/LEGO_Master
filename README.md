@@ -158,10 +158,13 @@ VISUALISATION = "VISUALISATION_CHOISI"
 
 - `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
+<br>
 
+### Algorithmes de traitements structurels
 
+Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour affiner le résultat :
 
-
+1. 
 
 <br>
 
@@ -169,6 +172,30 @@ VISUALISATION = "VISUALISATION_CHOISI"
 
 <br>
 
+
+
+
+## Exécution
+
+Une fois le déploiement sur votre machine réalisée et votre configuration terminée dans `main.py`, vous pouvez éxécutez le script via le terminal : 
+
+```bash
+python main.py
+```
+
+Les résultats seront générés dans le dossier `outputs/` :
+- `outputs/Avant_Traitement/` : Fichiers `.ldr` bruts réalisés après la voxelisation et avant les traitements structurels.
+- `outputs/Apres_Traitement/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurels.
+
+Vous pouvez visualiser ces fichiers avec :
+- LDView (Visualisation rapide).
+- BrickLink Studio (Rendu photoréaliste et instructions de montage).
+
+<br>
+
+---
+
+<br>
 
 
 
