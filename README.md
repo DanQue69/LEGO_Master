@@ -166,7 +166,7 @@ Réglage des fonctions de traitements structurels avec leurs paramètres associ�
 
 Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour affiner le résultat :
 
-
+<br>
 
 1. Correction des Données
 - Fonction : `corriger_voxels_non_classes_iteratif`
@@ -176,7 +176,7 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
   - `classes_a_propager` (défaut `[6]`) : Liste des classes "fortes" qui ont le droit d'écraser la classe inconnue (ex: `6` pour Bâti).
   - `max_iter` (défaut `5`) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
 
-
+<br>
  
 2. Filtrage Sémantique
 - Fonction : `graphe_filtre_classes`
@@ -185,7 +185,7 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
   - `classes_gardees` : Liste des identifiants LAS à conserver.
     - Par défaut `[1, 2, 3, 4, 5, 6]`; 1=Non Classé, 2=Sol, 3=Végétation basse, 4=Végétation moyenne, 5=Végétation haute, 6=Bati
 
-
+<br>
    
 3. Consolidation / Fondations
 - Fonctions : `ajouter_sol_coque_pillier`, `ajouter_sol_coque`, `ajouter_sol_rempli`
