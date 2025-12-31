@@ -37,6 +37,11 @@ LiDAR_2_LEGO/
 
 ## Installation et Déploiement
 
+```bash
+git clone <URL_DU_DEPOT_GIT>
+cd <NOM_DU_DOSSIER_CLONE>
+```
+
 ---
 
 
