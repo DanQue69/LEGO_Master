@@ -12,29 +12,25 @@ Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le 
 PROJET_RACINE/
 │
 ├── data/                      # Dossier destiné aux fichiers .laz d'entrée.
-│                              # ⚠️ Note : Les fichiers >100Mo ne sont pas inclus sur GitHub.
 │                              # Placez votre fichier (ex: sample.laz) ici.
-│
+│                              
 ├── docs/                      # Documentation technique, rapports et livrables.
-│
-├── outputs/                   # Dossier généré automatiquement contenant les résultats :
-│   ├── Avant_Traitement/      # Modèles bruts (voxelisation simple).
-│   ├── Apres_Traitement/      # Modèles finaux (nettoyés, colorés et consolidés).
-│   └── LIDAR_couches/         # (Optionnel) Exports GeoTIFF couche par couche.
+│ 
+├── outputs/                   # Dossier généré automatiquement contenant les résultats (modèles bruts, traités, finales, etc...) 
 │
 ├── src/                       # Code source Python (Modules internes) :
-│   ├── import_LIDAR.py                  # Lecture LAS/LAZ
-│   ├── affichage_LIDAR.py               # Visualisation des métadonnées
+│   ├── import_LIDAR.py                  # Lecture .laz/.las
+│   ├── affichage_LIDAR.py               # Visualisation des métadonnées du fichier LiDAR
 │   ├── LIDAR_numpy.py                   # Conversion LAS -> Numpy
-│   ├── LIDAR_couches.py                 # Voxelisation & Moteur GeoTIFF
+│   ├── LIDAR_couches.py                 # Voxelisation 
 │   ├── LIDAR_traitement.py              # Algorithmes de graphes & structure
 │   ├── LIDAR_LDRAW.py                   # Génération fichiers .ldr
-│   └── donnees_echantillonnees_LIDAR.py # Outils de test (échantillonnage)
+│   └── donnees_echantillonnees_LIDAR.py # Echantillonage des données LiDAR
 │
-├── main.py                    # 🚀 Point d'entrée principal (Configuration & Exécution)
-├── requirements.txt           # Liste des dépendances Python
-├── .gitignore                 # Configuration Git (exclusion venv, gros fichiers .laz)
-└── README.md                  # Ce fichier
+├── main.py                    # Point d'entrée principal (Configuration & Exécution)
+├── requirements.txt           # Liste des dépendances Python à installer sur votre machine
+├── .gitignore                 
+└── README.md                  
 ```
 
 
