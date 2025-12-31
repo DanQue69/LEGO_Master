@@ -6,6 +6,8 @@ Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - ENSG), le 
 
 ---
 
+
+
 ## Architecture du projet
 
 ```text
@@ -34,6 +36,8 @@ LiDAR_2_LEGO/
 ```
 
 ---
+
+
 
 ## Installation et Déploiement
 
@@ -65,7 +69,10 @@ pip install -r requirements
 
 ### Gestion des données LiDAR
 
-Un fichier `exemple.laz`
+Un fichier `exemple.laz` est présent dans le dossier `data/`, vous pouvez lancer directement le pipeline via `main.py`.
+
+Si vous voulez utilisez vos propres données `.laz` :
+1. Téléchargez une dalle LiDAR HD via le site Géoservices - IGN 
 
 
 
