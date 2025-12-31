@@ -57,7 +57,9 @@ Le projet utilise des librairies scientifiques et géospatiales (laspy, lazrs, n
 pip install -r requirements
 ```
 
+### Gestion des données LiDAR
 
+Un fichier `exemple.laz`
 
 
 
