@@ -188,17 +188,15 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
 
    
 3. Consolidation / Fondations
-
-- Choix entre 3 Modes :
+- Fonctions : `ajouter_sol_coque_pillier`, `ajouter_sol_coque`, `ajouter_sol_rempli`
+- Rôle : Génère un sol artificiel pour soutenir la maquette.
 ```python
 TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI" 
 ```
+- Choix entre 3 Modes :
   - `"PILIERS"` : Crée une coque fine et ajoute des piliers verticaux réguliers.
   - `"COQUE"` :
   - `"REMPLI"` : 
-
-- Fonctions : `ajouter_sol_coque_pillier`, `ajouter_sol_coque`, `ajouter_sol_rempli`
-- Rôle : Génère un sol artificiel pour soutenir la maquette.
 - Paramètres :
   - `class_sol` (défaut `2`) : La classe qui sera attribuée aux nouvelles briques de fondation.
   - `class_bat` (défaut `6`) : Classe utilisée comme "masque". L'algorithme évite de remplir l'intérieur des zones denses identifiées par cette classe.
