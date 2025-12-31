@@ -170,10 +170,17 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
 - Fonction : `corriger_voxels_non_classes_iteratif`
 - Rôle : Bouche les trous d'information. Si un voxel est "Non classé" (ex: bruit ou erreur capteur) mais qu'il est entouré de "Bâtiment", il prendra la classe "Bâtiment".
 - Paramètres :
-  - class_non_classe (défaut 1) : L'identifiant de la classe à corriger/remplacer.
-  - classes_a_propager (défaut [6]) : Liste des classes "fortes" qui ont le droit d'écraser la classe inconnue (ex: 6 pour Bâti).
-  - max_iter (défaut 5) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
-
+  - `class_non_classe` (défaut `1`) : L'identifiant de la classe à corriger/remplacer.
+  - `classes_a_propager` (défaut `[6]`) : Liste des classes "fortes" qui ont le droit d'écraser la classe inconnue (ex: `6` pour Bâti).
+  - `max_iter` (défaut `5`) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
+ 
+2. Filtrage Sémantique
+- Fonction : graphe_filtre_classes(G, ...)
+- Rôle : Ne garde que les voxels dont la classe est dans la liste autorisée. Supprime tout le reste.
+- Paramètres :
+  - classes_gardees : Liste des identifiants LAS à conserver.
+    - Exemple : [2, 6] ne garde que le Sol (2) et les Bâtiments (6).
+    - Standard ASPRS : 2=Sol, 3/4/5=Végétation, 6=Bâtiment, 9=Eau.
 
 
 
