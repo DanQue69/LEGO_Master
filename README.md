@@ -166,6 +166,8 @@ Réglage des fonctions de traitements structurels avec leurs paramètres associ�
 
 Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour affiner le résultat :
 
+
+
 1. Correction des Données
 - Fonction : `corriger_voxels_non_classes_iteratif`
 - Rôle : Bouche les trous d'information. Si un voxel est "Non classé" (ex: bruit ou erreur capteur) mais qu'il est entouré de "Bâtiment", il prendra la classe "Bâtiment".
@@ -173,13 +175,36 @@ Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour 
   - `class_non_classe` (défaut `1`) : L'identifiant de la classe à corriger/remplacer.
   - `classes_a_propager` (défaut `[6]`) : Liste des classes "fortes" qui ont le droit d'écraser la classe inconnue (ex: `6` pour Bâti).
   - `max_iter` (défaut `5`) : Nombre de fois où l'algorithme passe sur le modèle. Plus ce chiffre est haut, plus la correction se propage loin.
+
+
  
 2. Filtrage Sémantique
 - Fonction : `graphe_filtre_classes`
 - Rôle : Ne garde que les voxels dont la classe est dans la liste autorisée. Supprime tout le reste.
 - Paramètres :
   - `classes_gardees` : Liste des identifiants LAS à conserver.
-    - Par défaut `[1, 2, 3, 4, 5, 6]` 1=Non Classé, 2=Sol, 3=Végétation basse, 4=Végétation moyenne, 5=Végétation haute, 6=Bati
+    - Par défaut `[1, 2, 3, 4, 5, 6]`; 1=Non Classé, 2=Sol, 3=Végétation basse, 4=Végétation moyenne, 5=Végétation haute, 6=Bati
+
+
+   
+3. Consolidation / Fondations
+- Fonctions : `ajouter_sol_coque_pillier`, `ajouter_sol_coque`, `ajouter_sol_rempli`
+- Rôle : Génère un sol artificiel pour soutenir la maquette.
+
+- Choix entre 3 Modes :
+```python
+TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI" 
+```
+  - `"PILIERS"` : Crée une coque fine et ajoute des piliers verticaux réguliers.
+  - `"COQUE"` :
+  - `"REMPLI"` : 
+
+- Paramètres :
+  - `class_sol` (défaut `2`) : La classe qui sera attribuée aux nouvelles briques de fondation.
+  - `class_bat` (défaut `6`) : Classe utilisée comme "masque". L'algorithme évite de remplir l'intérieur des zones denses identifiées par cette classe.
+  - `pillar_step` (défaut `4`) : Espacement entre deux piliers (en nombre de voxels).
+  - `pillar_width` (défaut `2`) : Largeur du pilier carré (ex: 2 = pilier de 2x2 briques).
+  - `n_min` (défaut `2`) : Paramètre de lissage pour la propagation horizontale du sol.
 
 
 
