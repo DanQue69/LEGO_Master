@@ -162,9 +162,12 @@ VISUALISATION = "VISUALISATION_CHOISI"
 
 ### Algorithmes de traitements structurels
 
+Réglage des fonctions de traitements structurels avec leurs paramètres associés. Détail dans le fichier `LIDAR_traitement.py`.
+
 Vous pouvez activer/désactiver (`True`/`False`) chaque étape du pipeline pour affiner le résultat :
 
-1. 
+1. Correction des Données
+Fonction : corriger_voxels_non_classes_iteratif
 
 
 
