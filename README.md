@@ -42,7 +42,7 @@ LiDAR_2_LEGO/
 - Git : Pour cloner le projet.
 - Python 3.9 ou supérieur.
 
-<br>
+<sub></sub>
 
 ### Récupération du projet
 
