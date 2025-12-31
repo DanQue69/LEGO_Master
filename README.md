@@ -37,12 +37,16 @@ LiDAR_2_LEGO/
 
 ## Installation et Déploiement
 
+---
 
 
+---
 
+## Crédits et Licence
 
-
-
+- Auteurs : Romain DE BLOTEAU VALCHUK et Dan Quê NGUYEN - Géodata Paris (ex-ENSG École Nationale des Sciences Géographiques) 
+- Commanditaires : Corentin LE BIHAN GAUTIER et Théo SZANTO - Laboratoire LASTIG
+- Données : LiDAR HD (IGN) via la plateforme Géoservices, Licence Ouverte MIT.
 
 
 
