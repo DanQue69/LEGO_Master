@@ -248,76 +248,69 @@ def ajouter_sol_coque_pillier(G, class_sol=2, class_bat=3, n_min=2, pillar_step=
     """
 
     nb_avant = len(G.nodes())
-
-    # 1. Récupération des données
     coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
     classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
-    
-    if len(coords) == 0:
-        return G.copy()
+    if len(coords) == 0: return G.copy()
 
-    # 2. Décalage Sparse -> Dense
+    # Grille Dense
     min_coords = coords.min(axis=0)
     coords_shifted = coords - min_coords 
     nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
-    
-    # 3. Allocation grille
     grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
     grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
 
-    # 4. Masques Initiaux et Propagation
-    sol_mask = (grid == class_sol)
-    bat_mask = (grid == class_bat)
-    z_indices = np.arange(nz_max)
-
-    # Carte des hauteurs du sol (Z Max)
-    z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    # Propagation (Toujours identique au début)
+    sol_mask = (grid == class_sol); bat_mask = (grid == class_bat)
+    z_indices = np.arange(nz_max); z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    
     sol_exist = sol_mask.any(axis=2)
     if np.any(sol_exist):
         z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
 
-    # Remplissage vertical initial
     sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
     grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
     sol_mask = (grid == class_sol)
 
-    # Intérieur vs Extérieur
     interior_mask = bat_mask.any(axis=2)
     processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
-
-    # --- Propagation horizontale ---
     voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+    # Propagation Ext
     changed = True
-    
     while changed:
         changed = False
         sol_xy = sol_mask.any(axis=2).astype(np.int8)
-        neighbor_count = np.zeros_like(sol_xy)
-        neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
-        
+        neighbor_count = np.zeros_like(sol_xy); neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
         for dx, dy in voisins8:
             shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
             neighbor_count += shifted_sol
             shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
-            valid_h = shifted_h * shifted_sol
-            neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
-
-        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
-
-        if np.any(candidate_cols):
+            neighbor_max_z = np.maximum(neighbor_max_z, shifted_h * shifted_sol)
+        candidate = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+        if np.any(candidate):
             changed = True
-            processed_mask[candidate_cols] = True
-            xs, ys = np.where(candidate_cols)
+            processed_mask[candidate] = True
+            xs, ys = np.where(candidate)
             z_targets = neighbor_max_z[xs, ys]
-            
             for x, y, zt in zip(xs, ys, z_targets):
                 if zt < 0: continue
-                col_slice = grid[x, y, :zt+1]
-                mask_writable = (col_slice == 0) | (col_slice == class_sol)
-                col_slice[mask_writable] = class_sol
+                grid[x, y, :zt+1] = np.where(grid[x, y, :zt+1] == 0, class_sol, grid[x, y, :zt+1])
                 z_height_map[x, y] = zt
-            
             sol_mask = (grid == class_sol)
+
+    # Propagation Sous Bâtiments
+    interior_processing = interior_mask.copy()
+    changed_int = True
+    while changed_int:
+        changed_int = False
+        h_current = z_height_map.copy(); h_max_neighbor = np.zeros_like(h_current)
+        for dx, dy in voisins8:
+            shifted_h = np.roll(np.roll(h_current, dx, axis=0), dy, axis=1)
+            h_max_neighbor = np.maximum(h_max_neighbor, shifted_h)
+        update_mask = interior_processing & (z_height_map == 0) & (h_max_neighbor > 0)
+        if np.any(update_mask):
+            changed_int = True
+            z_height_map[update_mask] = h_max_neighbor[update_mask]
 
     xs, ys = np.where(interior_mask)
     if len(xs) > 0:
@@ -328,12 +321,10 @@ def ajouter_sol_coque_pillier(G, class_sol=2, class_bat=3, n_min=2, pillar_step=
                  mask_writable = (col_slice == 0) | (col_slice == class_sol)
                  col_slice[mask_writable] = class_sol
 
-    # --- CRÉATION DE LA COQUE ---
+    # === COQUE AVEC PILIERS ===
     sol_final_mask = (grid == class_sol)
     is_internal = sol_final_mask.copy()
     
-    # Vérification des 6 voisins par décalage (slicing)
-    # Si un voxel a ses 6 voisins qui sont aussi du sol, il est "interne"
     is_internal[:-1, :, :] &= sol_final_mask[1:, :, :]  
     is_internal[1:, :, :]  &= sol_final_mask[:-1, :, :]  
     is_internal[:, :-1, :] &= sol_final_mask[:, 1:, :]  
@@ -341,46 +332,32 @@ def ajouter_sol_coque_pillier(G, class_sol=2, class_bat=3, n_min=2, pillar_step=
     is_internal[:, :, :-1] &= sol_final_mask[:, :, 1:]  
     is_internal[:, :, 1:]  &= sol_final_mask[:, :, :-1]  
     
-    # Les bords du volume ne sont jamais internes (on ne veut pas de trous sur les bords)
     is_internal[0, :, :] = False; is_internal[-1, :, :] = False
     is_internal[:, 0, :] = False; is_internal[:, -1, :] = False
     is_internal[:, :, 0] = False; is_internal[:, :, -1] = False
 
-    # --- CREATION DES PILIERS ---
+    # Protection des piliers
     if pillar_step > 0: 
-        # On crée des indices pour toute la grille
         x_indices = np.arange(nx_max)
         y_indices = np.arange(ny_max)
-        
-        # Masque 1D : True si l'index correspond à une zone de pilier
+        # Piliers de largeur configurable
         x_pillar_mask = (x_indices % pillar_step) < pillar_width
         y_pillar_mask = (y_indices % pillar_step) < pillar_width
-        
-        # Masque 2D (Broadcasting) : True à l'intersection des colonnes et lignes de piliers
         pillar_mask_2d = x_pillar_mask[:, None] & y_pillar_mask[None, :]
-        
-        # On applique ce masque sur tout le volume Z
-        is_internal[pillar_mask_2d, :] = False
+        is_internal[pillar_mask_2d, :] = False # On ne supprime pas les piliers
 
-    # Suppression des voxels internes (création du vide)
     grid[is_internal] = 0
 
-    # 5. Reconstruction Graph
+    # Reconstruction
     G_sol = nx.Graph()
     voxels_finaux = np.argwhere(grid != 0)
-    counter = 0
     nodes_list = []
-    
-    for x_loc, y_loc, z_loc in voxels_finaux:
-        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
-        val = int(grid[x_loc, y_loc, z_loc])
-        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
-        counter += 1
-        
+    for i, (x, y, z) in enumerate(voxels_finaux):
+        real_coord = (x + min_coords[0], y + min_coords[1], z + min_coords[2])
+        nodes_list.append((i, {"coord": real_coord, "class_maj": int(grid[x, y, z])}))
     G_sol.add_nodes_from(nodes_list)
-
-    nb_apres = len(G_sol.nodes())
-    print(f"Ajout sol (Coque + Piliers {pillar_width}x{pillar_width}) : {nb_apres - nb_avant} nœuds ajoutés.")
+    
+    print(f"Ajout sol (Coque+Piliers) : {len(G_sol.nodes()) - nb_avant} voxels ajoutés.")
     return G_sol
 
 def ajouter_sol_coque(G, class_sol=2, class_bat=3, n_min=2):
@@ -390,76 +367,69 @@ def ajouter_sol_coque(G, class_sol=2, class_bat=3, n_min=2):
     """
     
     nb_avant = len(G.nodes())
-
-    # 1. Récupération des données
     coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
     classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
-    
-    if len(coords) == 0:
-        return G.copy()
+    if len(coords) == 0: return G.copy()
 
-    # 2. Décalage Sparse -> Dense
+    # Grille Dense
     min_coords = coords.min(axis=0)
     coords_shifted = coords - min_coords 
     nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
-    
-    # 3. Allocation grille
     grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
     grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
 
-    # 4. Masques Initiaux et Propagation (Logique inchangée)
-    sol_mask = (grid == class_sol)
-    bat_mask = (grid == class_bat)
-    z_indices = np.arange(nz_max)
-
-    # Carte des hauteurs du sol (Z Max)
-    z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    # Propagation (Identique à Rempli pour avoir le volume complet d'abord)
+    sol_mask = (grid == class_sol); bat_mask = (grid == class_bat)
+    z_indices = np.arange(nz_max); z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    
     sol_exist = sol_mask.any(axis=2)
     if np.any(sol_exist):
         z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
 
-    # Remplissage vertical initial
     sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
     grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
     sol_mask = (grid == class_sol)
 
-    # Intérieur vs Extérieur
     interior_mask = bat_mask.any(axis=2)
     processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
-
-    # --- Propagation horizontale ---
     voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+    # Propagation Ext
     changed = True
-    
     while changed:
         changed = False
         sol_xy = sol_mask.any(axis=2).astype(np.int8)
-        neighbor_count = np.zeros_like(sol_xy)
-        neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
-        
+        neighbor_count = np.zeros_like(sol_xy); neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
         for dx, dy in voisins8:
             shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
             neighbor_count += shifted_sol
             shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
-            valid_h = shifted_h * shifted_sol
-            neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
-
-        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
-
-        if np.any(candidate_cols):
+            neighbor_max_z = np.maximum(neighbor_max_z, shifted_h * shifted_sol)
+        candidate = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+        if np.any(candidate):
             changed = True
-            processed_mask[candidate_cols] = True
-            xs, ys = np.where(candidate_cols)
+            processed_mask[candidate] = True
+            xs, ys = np.where(candidate)
             z_targets = neighbor_max_z[xs, ys]
-            
             for x, y, zt in zip(xs, ys, z_targets):
                 if zt < 0: continue
-                col_slice = grid[x, y, :zt+1]
-                mask_writable = (col_slice == 0) | (col_slice == class_sol)
-                col_slice[mask_writable] = class_sol
+                grid[x, y, :zt+1] = np.where(grid[x, y, :zt+1] == 0, class_sol, grid[x, y, :zt+1])
                 z_height_map[x, y] = zt
-            
             sol_mask = (grid == class_sol)
+
+    # Propagation Sous Bâtiments
+    interior_processing = interior_mask.copy()
+    changed_int = True
+    while changed_int:
+        changed_int = False
+        h_current = z_height_map.copy(); h_max_neighbor = np.zeros_like(h_current)
+        for dx, dy in voisins8:
+            shifted_h = np.roll(np.roll(h_current, dx, axis=0), dy, axis=1)
+            h_max_neighbor = np.maximum(h_max_neighbor, shifted_h)
+        update_mask = interior_processing & (z_height_map == 0) & (h_max_neighbor > 0)
+        if np.any(update_mask):
+            changed_int = True
+            z_height_map[update_mask] = h_max_neighbor[update_mask]
 
     xs, ys = np.where(interior_mask)
     if len(xs) > 0:
@@ -470,153 +440,122 @@ def ajouter_sol_coque(G, class_sol=2, class_bat=3, n_min=2):
                  mask_writable = (col_slice == 0) | (col_slice == class_sol)
                  col_slice[mask_writable] = class_sol
 
+    # === ÉROSION POUR CRÉER LA COQUE ===
     sol_final_mask = (grid == class_sol)
     is_internal = sol_final_mask.copy()
     
-    # Axe X
-    is_internal[:-1, :, :] &= sol_final_mask[1:, :, :]  # Voisin Droite
-    is_internal[1:, :, :]  &= sol_final_mask[:-1, :, :]  # Voisin Gauche
-    # Axe Y
-    is_internal[:, :-1, :] &= sol_final_mask[:, 1:, :]  # Voisin Arrière
-    is_internal[:, 1:, :]  &= sol_final_mask[:, :-1, :]  # Voisin Avant
-    # Axe Z
-    is_internal[:, :, :-1] &= sol_final_mask[:, :, 1:]  # Voisin Haut
-    is_internal[:, :, 1:]  &= sol_final_mask[:, :, :-1]  # Voisin Bas
-
-    is_internal[0, :, :] = False
-    is_internal[-1, :, :] = False
-    is_internal[:, 0, :] = False
-    is_internal[:, -1, :] = False
-    is_internal[:, :, 0] = False
-    is_internal[:, :, -1] = False
+    # Un voxel est interne si ses 6 voisins directs sont aussi du sol
+    is_internal[:-1, :, :] &= sol_final_mask[1:, :, :]  
+    is_internal[1:, :, :]  &= sol_final_mask[:-1, :, :]  
+    is_internal[:, :-1, :] &= sol_final_mask[:, 1:, :]  
+    is_internal[:, 1:, :]  &= sol_final_mask[:, :-1, :]  
+    is_internal[:, :, :-1] &= sol_final_mask[:, :, 1:]  
+    is_internal[:, :, 1:]  &= sol_final_mask[:, :, :-1]  
     
-    grid[is_internal] = 0
+    # Bords jamais internes
+    is_internal[0, :, :] = False; is_internal[-1, :, :] = False
+    is_internal[:, 0, :] = False; is_internal[:, -1, :] = False
+    is_internal[:, :, 0] = False; is_internal[:, :, -1] = False
+    
+    grid[is_internal] = 0 # Suppression de l'intérieur
 
-    # 5. Reconstruction Graph
+    # Reconstruction
     G_sol = nx.Graph()
     voxels_finaux = np.argwhere(grid != 0)
-    counter = 0
     nodes_list = []
-    
-    for x_loc, y_loc, z_loc in voxels_finaux:
-        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
-        val = int(grid[x_loc, y_loc, z_loc])
-        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
-        counter += 1
-        
+    for i, (x, y, z) in enumerate(voxels_finaux):
+        real_coord = (x + min_coords[0], y + min_coords[1], z + min_coords[2])
+        nodes_list.append((i, {"coord": real_coord, "class_maj": int(grid[x, y, z])}))
     G_sol.add_nodes_from(nodes_list)
-
-    nb_apres = len(G_sol.nodes())
-    print(f"Ajout sol (Coque) : {nb_apres - nb_avant} nœuds ajoutés (Total: {nb_apres} nœuds).")
+    
+    print(f"Ajout sol (Coque) : {len(G_sol.nodes()) - nb_avant} voxels ajoutés.")
     return G_sol
 
 def ajouter_sol_rempli(G, class_sol=2, class_bat=3, n_min=2):
 
     """
-    Propagation du sol avec propagation.
+    Propagation du sol avec propagation.Ajoute un sol MASSIF sous toute la scène, y compris sous les bâtiments.
+    Propage la hauteur du sol pour éviter les trous.
     """
 
     nb_avant = len(G.nodes())
-
-    # 1. Récupération des données
     coords = np.array([d['coord'] for _, d in G.nodes(data=True)], dtype=int)
     classes = np.array([d['class_maj'] for _, d in G.nodes(data=True)], dtype=int)
-    
-    if len(coords) == 0:
-        return G.copy()
+    if len(coords) == 0: return G.copy()
 
-    # 2. Décalage Sparse -> Dense
+    # Grille Dense
     min_coords = coords.min(axis=0)
     coords_shifted = coords - min_coords 
     nx_max, ny_max, nz_max = coords_shifted.max(axis=0) + 1
     
-    # 3. Allocation grille
     grid = np.zeros((nx_max, ny_max, nz_max), dtype=np.int8) 
     grid[coords_shifted[:,0], coords_shifted[:,1], coords_shifted[:,2]] = classes
 
-    # 4. Masques Initiaux
+    # Masques & Hauteurs
     sol_mask = (grid == class_sol)
     bat_mask = (grid == class_bat)
     z_indices = np.arange(nz_max)
-
-    # Carte des hauteurs du sol (Z Max)
-    # Initialisation : 0 là où pas de sol, sinon Z max du sol
     z_height_map = np.zeros((nx_max, ny_max), dtype=int)
+    
     sol_exist = sol_mask.any(axis=2)
     if np.any(sol_exist):
         z_height_map[sol_exist] = nz_max - 1 - np.argmax(sol_mask[..., ::-1], axis=2)[sol_exist]
 
-    # Remplissage vertical initial (sous le sol existant)
+    # Remplissage initial sous sol existant
     sol_fill = sol_exist[:, :, None] & (z_indices[None, None, :] <= z_height_map[:, :, None])
     grid[sol_fill] = np.where((grid[sol_fill] == 0) | (grid[sol_fill] == class_sol), class_sol, grid[sol_fill])
     sol_mask = (grid == class_sol)
 
-    # Intérieur vs Extérieur
     interior_mask = bat_mask.any(axis=2)
-    
-    # Masque mémoire pour ne pas boucler indéfiniment
     processed_mask = np.zeros((nx_max, ny_max), dtype=bool)
-
-    # --- Propagation horizontale ---
     voisins8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+    # 1. Propagation Extérieure
     changed = True
-    
     while changed:
         changed = False
-        
-        # 1. Qui est sol actuellement ?
         sol_xy = sol_mask.any(axis=2).astype(np.int8)
-        
-        # 2. Compter les voisins sol
         neighbor_count = np.zeros_like(sol_xy)
-        
-        # 3. Calculer la hauteur MAX des voisins sol (C'est la nouveauté)
-        # On veut savoir : pour chaque case vide, quel est le voisin sol le plus haut ?
         neighbor_max_z = np.zeros((nx_max, ny_max), dtype=int)
         
         for dx, dy in voisins8:
-            # On décale la carte de présence
             shifted_sol = np.roll(np.roll(sol_xy, dx, axis=0), dy, axis=1)
             neighbor_count += shifted_sol
-            
-            # On décale la carte des hauteurs
             shifted_h = np.roll(np.roll(z_height_map, dx, axis=0), dy, axis=1)
-            # On ne garde la hauteur que si c'est un voisin qui EST sol
-            valid_h = shifted_h * shifted_sol # Masquage
+            valid_h = shifted_h * shifted_sol 
             neighbor_max_z = np.maximum(neighbor_max_z, valid_h)
 
-        candidate_cols = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
-
-        if np.any(candidate_cols):
+        candidate = (neighbor_count >= n_min) & (sol_xy == 0) & (~interior_mask) & (~processed_mask)
+        if np.any(candidate):
             changed = True
-            processed_mask[candidate_cols] = True
-            
-            xs, ys = np.where(candidate_cols)
+            processed_mask[candidate] = True
+            xs, ys = np.where(candidate)
             z_targets = neighbor_max_z[xs, ys]
-            
-            # Remplissage
             for x, y, zt in zip(xs, ys, z_targets):
-                # On remplit de 0 jusqu'à la hauteur du voisin le plus haut
-                if zt < 0: continue # Sécurité
-                
-                # Tranche de la colonne
-                col_slice = grid[x, y, :zt+1]
-                
-                # On ne remplit QUE le vide (0) ou ce qui est déjà sol (2)
-                # On NE TOUCHE PAS aux bâtiments ou végétation existants au dessus
-                mask_writable = (col_slice == 0) | (col_slice == class_sol)
-                col_slice[mask_writable] = class_sol
-                
-                # Mise à jour de la carte des hauteurs pour cette colonne
-                # La nouvelle hauteur sol est zt (puisqu'on vient de remplir jusqu'à zt)
+                if zt < 0: continue
+                grid[x, y, :zt+1] = np.where(grid[x, y, :zt+1] == 0, class_sol, grid[x, y, :zt+1])
                 z_height_map[x, y] = zt
-            
-            # Mise à jour du masque global
             sol_mask = (grid == class_sol)
 
+    # 2. Propagation SOUS les bâtiments (Correction Robuste)
+    interior_processing = interior_mask.copy()
+    changed_int = True
+    while changed_int:
+        changed_int = False
+        h_current = z_height_map.copy()
+        h_max_neighbor = np.zeros_like(h_current)
+        for dx, dy in voisins8:
+            shifted_h = np.roll(np.roll(h_current, dx, axis=0), dy, axis=1)
+            h_max_neighbor = np.maximum(h_max_neighbor, shifted_h)
+        
+        update_mask = interior_processing & (z_height_map == 0) & (h_max_neighbor > 0)
+        if np.any(update_mask):
+            changed_int = True
+            z_height_map[update_mask] = h_max_neighbor[update_mask]
+
+    # 3. Remplissage Final
     xs, ys = np.where(interior_mask)
     if len(xs) > 0:
-        # On remplit jusqu'au max trouvé lors de l'init ou propagation adjacente
         z_tops = z_height_map[xs, ys]
         for x, y, zt in zip(xs, ys, z_tops):
              if zt > 0:
@@ -624,22 +563,16 @@ def ajouter_sol_rempli(G, class_sol=2, class_bat=3, n_min=2):
                  mask_writable = (col_slice == 0) | (col_slice == class_sol)
                  col_slice[mask_writable] = class_sol
 
-    # 5. Reconstruction Graph
+    # Reconstruction
     G_sol = nx.Graph()
     voxels_finaux = np.argwhere(grid != 0)
-    counter = 0
     nodes_list = []
-    
-    for x_loc, y_loc, z_loc in voxels_finaux:
-        real_coord = (x_loc + min_coords[0], y_loc + min_coords[1], z_loc + min_coords[2])
-        val = int(grid[x_loc, y_loc, z_loc])
-        nodes_list.append((counter, {"coord": real_coord, "class_maj": val}))
-        counter += 1
-        
+    for i, (x, y, z) in enumerate(voxels_finaux):
+        real_coord = (x + min_coords[0], y + min_coords[1], z + min_coords[2])
+        nodes_list.append((i, {"coord": real_coord, "class_maj": int(grid[x, y, z])}))
     G_sol.add_nodes_from(nodes_list)
-
-    nb_apres = len(G_sol.nodes())
-    print(f"Ajout sol (Rempli) : {nb_apres - nb_avant} nœuds ajoutés (Total: {nb_apres} nœuds).")
+    
+    print(f"Ajout sol (Rempli) : {len(G_sol.nodes()) - nb_avant} voxels ajoutés.")
     return G_sol
 
 

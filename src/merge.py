@@ -9,11 +9,11 @@ Ce module définit la classe Brick et les règles permettant de fusionner deux b
 # Source: Catalogue LEGO standard (Briques et Plaques utilisées comme briques)
 VALID_SIZES = {
     # Briques 1.x
-    (1, 1), (1, 2), 
+    (1, 1), (1, 2), (1, 4),
     # Briques 2.x
-    (2, 2), (2, 4), 
+    (2, 2), (2, 4), (2, 6), (2, 8),
     # Inverses pour la recherche facile
-    (2, 1), (4, 2)
+    (2, 1), (4, 1), (4, 2), (6, 2), (8, 2)
 }
 
 class Brick:

@@ -270,92 +270,105 @@ def solve_greedy_stripe(bricks):
 
 
 if __name__ == "__main__":
-    import time
     
-    # === IMPORTS POUR LE TEST UNIQUEMENT ===
+    # === 1. IMPORTS DYNAMIQUES ===
     try:
-        # On essaie d'importer la factory. 
-        # ATTENTION : Renomme ton fichier 'brique_merge.py' en 'brick_factory.py'
         from brick_factory import bricks_from_numpy
     except ImportError:
-        # Fallback si tu n'as pas renommé
         try:
             from brique_merge import bricks_from_numpy
         except ImportError:
             print("ERREUR CRITIQUE : Impossible d'importer 'bricks_from_numpy'.")
-            print("Vérifiez que 'brick_factory.py' (ou brique_merge.py) est dans 'src'.")
             sys.exit(1)
 
-    from donnees_echantillonnees_LIDAR import LIDAR_rectangle
-    from LIDAR_couches import LIDAR_couches_LEGO_LDRAW
-
-    print("\n=== LANCEMENT DU TEST UNITAIRE : SOLVER.PY ===\n")
-
-    # 1. GÉNÉRATION DE DONNÉES LIDAR (Simulation)
-    # -------------------------------------------
-    nom_fichier = "exemple.laz" # Ou "exemple.laz"
-    file_path = DATA_DIR / nom_fichier
-    
-    if not file_path.exists():
-        print(f"[ERREUR] Fichier {nom_fichier} introuvable pour le test.")
+    # Imports de la chaîne de traitement LiDAR
+    try:
+        from donnees_echantillonnees_LIDAR import LIDAR_rectangle
+        from LIDAR_couches import LIDAR_couches_LEGO_LDRAW
+        from LIDAR_traitement import (
+            voxel_graphe, 
+            corriger_voxels_non_classes_iteratif,
+            graphe_filtre_classes,
+            graphe_filtre_sol, 
+            remplir_trous_verticaux, 
+            ajouter_sol_coque_pillier, 
+            graphe_voxel
+        )
+        DATA_AVAILABLE = True
+    except ImportError as e:
+        DATA_AVAILABLE = False
+        print(f"[Info] Modules LiDAR manquants : {e}")
+        print("Impossible de lancer le test complet.")
         sys.exit(1)
 
-    print(f"1. Chargement et Voxelisation de {nom_fichier}...")
-    # On prend une petite zone pour que le test soit rapide (ex: 40x40m)
-    lidar_data = LIDAR_rectangle(
-        file_path, 
-        nb_points=1000000000,   # Nombre de points max à récupérer 
-        x_min_coin=669680.0,    # Coordonnées du coin bas gauche du rectangle échantillonné
-        y_min_coin=6860143.0,   # Coordonnées du coin bas gauche du rectangle échantillonné
-        longueur_x=150,         # Longueur en x dans la direction Est-Ouest
-        longueur_y=100          # Longueur en y dans la direction Nord-Sud 
-    )
 
-    # Voxelisation (Step classique)
-    counts, class_maj = LIDAR_couches_LEGO_LDRAW(
-        lidar_data, 
-        taille_xy=1.0, 
-        lego_ratio=1.2, 
-        densite_min=1
-    )
-    print(f"   -> Grille obtenue : {counts.shape}")
+    print("\n=== LANCEMENT DU TEST : PIPELINE COMPLET (TRAITEMENT + SOLVER) ===\n")
 
-    # 2. CONVERSION EN BRIQUES 1x1
-    # ----------------------------
-    print("\n2. Conversion Numpy -> Objets Brick (Non optimisés)...")
-    # On utilise le mode COULEUR pour tester la contrainte de couleur lors du merge
-    raw_bricks = bricks_from_numpy(counts, class_maj, visualisation="COULEUR")
-    print(f"   -> {len(raw_bricks)} briques 1x1 générées.")
+    if DATA_AVAILABLE:
+        # === A. PARAMÈTRES ===
+        nom_fichier = "exemple.laz"
+        file_path = DATA_DIR / nom_fichier
+        
+        if not file_path.exists():
+            print(f"[ERREUR] Fichier {nom_fichier} introuvable pour le test.")
+            sys.exit(1)
 
-    # 3. CALCUL DU COÛT INITIAL
-    # -------------------------
-    print("\n3. Évaluation Structurelle Initiale...")
-    # Attention : total_cost_function peut être long sur >100k briques.
-    # Pour le test, on le lance.
-    t_start = time.time()
-    cout_init = total_cost_function(raw_bricks)
-    print(f"   -> Coût Initial : {cout_init:.2f} (Calculé en {time.time()-t_start:.2f}s)")
-    print("      (Note : Un coût élevé est normal car les murs verticaux ne sont pas croisés)")
+        # === B. CHARGEMENT & VOXELISATION ===
+        print("1. Chargement et Voxelisation...")
+        lidar_data = LIDAR_rectangle(
+            file_path, 
+            nb_points=1000000000,   
+            x_min_coin=669680.0,    
+            y_min_coin=6860143.0,   
+            longueur_x=150,         
+            longueur_y=100          
+        )
 
-    # 4. OPTIMISATION (LE SOLVER)
-    # ---------------------------
-    print("\n4. Exécution du Solver (Greedy Stripe)...")
-    optimized_bricks = solve_greedy_stripe(raw_bricks)
+        counts, class_maj = LIDAR_couches_LEGO_LDRAW(lidar_data, taille_xy=1.0, lego_ratio=1.2, densite_min=1)
+        print(f"   -> Grille initiale : {counts.shape}")
 
-    # 5. CALCUL DU COÛT FINAL
-    # -----------------------
-    print("\n5. Évaluation Structurelle Finale...")
-    cout_final = total_cost_function(optimized_bricks)
-    print(f"   -> Coût Final : {cout_final:.2f}")
-    
-    gain = cout_init - cout_final
-    print(f"   -> Gain de solidité : {gain:.2f}")
+        voxel_LDRAW_classif(counts, class_maj, nom_fichier="1.ldr")
 
-    # 6. EXPORT
-    # ---------
-    print("\n6. Exportation du résultat...")
-    nom_sortie = OUTPUT_DIR / "Test_Solver_Resultat.ldr"
-    export_to_ldr(optimized_bricks, str(nom_sortie))
-    
-    print(f"\n=== TEST TERMINÉ ===")
-    print(f"Fichier de sortie : {nom_sortie}")
+        # === C. TRAITEMENTS STRUCTURELS (Comme dans main.py) ===
+        print("\n2. Traitements Structurels (Graphe, Nettoyage, Piliers)...")
+        
+        # 1. Graphe
+        G = voxel_graphe(counts, class_maj)
+
+        G = corriger_voxels_non_classes_iteratif(G, class_non_classe=1, classes_a_propager=[6], class_sol=2, max_iter=5)
+
+        G = graphe_filtre_classes(G, classes_gardees=[1, 2, 3, 4, 5, 6])
+        
+        # 2. Nettoyage sol
+        G = graphe_filtre_sol(G, class_sol=2)
+
+        # 4. Consolidation (Piliers)
+        G = ajouter_sol_coque_pillier(G, class_sol=2, class_bat=6, n_min=1, pillar_step=4, pillar_width=2)
+        
+        # 3. Remplissage Murs
+        G = remplir_trous_verticaux(G, classes_batiment=[6])
+        
+        # 5. Retour vers Grille
+        counts_traite, class_maj_traite = graphe_voxel(G)
+
+
+        voxel_LDRAW_classif(counts_traite, class_maj_traite, nom_fichier="2.ldr")
+        
+        
+        # === D. CONVERSION EN OBJETS BRIQUES ===
+        print("\n3. Conversion Numpy -> Objets Brick...")
+        # On utilise les données TRAITÉES ici
+        raw_bricks = bricks_from_numpy(counts_traite, class_maj_traite, visualisation="COULEUR")
+        print(f"   -> Nombre de briques (1x1) à optimiser : {len(raw_bricks)}")
+
+        # === E. OPTIMISATION (SOLVER) ===
+        print("\n4. Exécution du Solver (Greedy Stripe)...")
+        optimized_bricks = solve_greedy_stripe(raw_bricks)
+
+        # === F. EXPORT ===
+        print("\n5. Exportation du résultat...")
+        nom_sortie = OUTPUT_DIR / "Test_Complet_Traite_Optimise.ldr"
+        export_to_ldr(optimized_bricks, str(nom_sortie))
+        
+        print(f"\n[SUCCÈS] Fichier de sortie : {nom_sortie}")
+        print("Ce modèle contient la structure optimisée (piliers) ET les briques fusionnées.")
