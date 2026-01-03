@@ -120,6 +120,7 @@ def voxel_LDRAW_classif(counts, class_maj, nom_fichier="modele_LEGO_classif.ldr"
     z = -iz * 24  
 
     # # === Dictionnaire classification LIDAR en couleur LDraw hexadécimal ===
+    # # Décommenter si besoin de correspondance visuelle stricte.
     # ldraw_couleurs = {
     #     1: 0x2000000,   # Non classé => noir
     #     2: 0x28B4513,   # Sol => marron
