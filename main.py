@@ -94,7 +94,7 @@ PARAM_FILTRE_SOL = {
 
 # D. Consolidation du sol 
 # Choix : "PILIERS" (Recommandé), "COQUE" (Économique), "REMPLI" (Massif), "AUCUN"
-TYPE_CONSOLIDATION = "PILIERS" 
+TYPE_CONSOLIDATION = "AUCUN" 
 PARAM_CONSOLIDATION = {
     "class_sol": 2, 
     "class_bat": 6, 
