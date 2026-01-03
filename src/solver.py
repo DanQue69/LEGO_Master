@@ -25,7 +25,7 @@ from LIDAR_couches import LIDAR_couches, LIDAR_couches_LEGO, LIDAR_couches_LEGO_
 from LIDAR_LDRAW import voxel_LDRAW, voxel_LDRAW_classif
 
 from merge import Brick
-from collections import defaultdict
+from collections import defaultdict, Counter
 from merge import merge_bricks
 from cost_function import total_cost_function
 
@@ -327,7 +327,6 @@ if __name__ == "__main__":
         counts, class_maj = LIDAR_couches_LEGO_LDRAW(lidar_data, taille_xy=1.0, lego_ratio=1.2, densite_min=1)
         print(f"   -> Grille initiale : {counts.shape}")
 
-        voxel_LDRAW_classif(counts, class_maj, nom_fichier="1.ldr")
 
         # === C. TRAITEMENTS STRUCTURELS (Comme dans main.py) ===
         print("\n2. Traitements Structurels (Graphe, Nettoyage, Piliers)...")
@@ -350,9 +349,6 @@ if __name__ == "__main__":
         
         # 5. Retour vers Grille
         counts_traite, class_maj_traite = graphe_voxel(G)
-
-
-        voxel_LDRAW_classif(counts_traite, class_maj_traite, nom_fichier="2.ldr")
         
         
         # === D. CONVERSION EN OBJETS BRIQUES ===
@@ -372,3 +368,5 @@ if __name__ == "__main__":
         
         print(f"\n[SUCCÈS] Fichier de sortie : {nom_sortie}")
         print("Ce modèle contient la structure optimisée (piliers) ET les briques fusionnées.")
+
+        print(print_brick_stats(optimized_bricks))
