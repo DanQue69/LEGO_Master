@@ -20,6 +20,7 @@ from donnees_echantillonnees_LIDAR import LIDAR_carre_aleatoire, LIDAR_rectangle
 from import_LIDAR import laz_to_las
 from LIDAR_numpy import LIDAR_numpy_utile
 from LIDAR_couches import LIDAR_couches, LIDAR_couches_LEGO, LIDAR_couches_LEGO_LDRAW
+from LIDAR_LDRAW import voxel_LDRAW, voxel_LDRAW_classif
 
 from merge import Brick
 
@@ -182,20 +183,20 @@ if __name__ == "__main__":
     # 2. TEST : Numpy -> Briques (MODE COULEUR)
     # -----------------------------------------
     print("TEST A : Conversion NumPy -> Briques (COULEUR)")
-    briques_couleur = bricks_from_numpy(counts, class_maj, visualisation="COULEUR")
+    briques_numpy_couleur = bricks_from_numpy(counts, class_maj, visualisation="COULEUR")
     
-    if len(briques_couleur) > 0:
-        b = briques_couleur[0]
-        print(f"   [OK] {len(briques_couleur)} briques générées.")
+    if len(briques_numpy_couleur) > 0:
+        b = briques_numpy_couleur[0]
+        print(f"   [OK] {len(briques_numpy_couleur)} briques générées.")
         
         # Validation nombre
-        if len(briques_couleur) == nb_voxels:
+        if len(briques_numpy_couleur) == nb_voxels:
             print("   [OK] Le nombre de briques correspond au nombre de voxels.")
         else:
-            print(f"   [ERREUR] {len(briques_couleur)} briques vs {nb_voxels} voxels.")
+            print(f"   [ERREUR] {len(briques_numpy_couleur)} briques vs {nb_voxels} voxels.")
 
         # Validation couleur
-        b_colore = next((b for b in briques_couleur if b.color != 16), None)
+        b_colore = next((b for b in briques_numpy_couleur if b.color != 16), None)
         if b_colore:
             print(f"   [OK] Validation couleur : Trouvé brique couleur {b_colore.color} (Classe mappée).")
         else:
@@ -230,13 +231,13 @@ if __name__ == "__main__":
 
     print(f"   Briques parsées : {len(briques_parsed)}")
 
-    if len(briques_parsed) == len(briques_couleur):
+    if len(briques_parsed) == len(briques_numpy_couleur):
         print("   [OK] Nombre de briques identique entre NumPy Direct et LDraw Parsing.")
         
         # Comparaison de la première brique (Attention, l'ordre peut varier, on trie pour comparer)
         # On compare un échantillon au hasard
         idx = 0
-        b_ref = briques_couleur[idx]
+        b_ref = briques_numpy_couleur[idx]
         # On cherche une brique correspondante dans parsed
         b_parsed_match = next((b for b in briques_parsed if b.x == b_ref.x and b.y == b_ref.y and b.layer == b_ref.layer), None)
         
@@ -254,3 +255,9 @@ if __name__ == "__main__":
 
 
     print("\n=== Fin du test ===\n")
+
+    print(briques_numpy_couleur[:5])
+    print("\n\n")
+    print(briques_gris[:5])  
+    print("\n\n")
+    print(briques_parsed[:5])
