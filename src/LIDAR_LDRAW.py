@@ -13,8 +13,6 @@ Informations complémentaires :
 
 
 # === Importations ===
-
-# === Importations ===
 import sys
 import os
 import numpy as np
