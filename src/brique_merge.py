@@ -146,3 +146,111 @@ def bricks_from_numpy(counts, class_maj=None, visualisation="COULEUR"):
         bricks.append(b)
 
     return bricks
+
+
+
+if __name__ == "__main__":
+    print("\n=== Lancement du test unitaire : brick_factory.py ===\n")
+
+    # 1. PRÉPARATION DES DONNÉES (Simulation du workflow)
+    # ---------------------------------------------------
+    nom_fichier = "exemple.laz" 
+    file_path = DATA_DIR / nom_fichier
+
+    if not file_path.exists():
+        print(f"[ATTENTION] Fichier {nom_fichier} introuvable. Test ignoré.")
+        sys.exit(0)
+
+    print(f"Chargement et voxelisation de {nom_fichier}...")
+    
+    # On prend un petit rectangle pour le test
+    lidar_data = LIDAR_rectangle(file_path, nb_points=10000, x_min_coin=669680.0, y_min_coin=6860143.0, longueur_x=20, longueur_y=20)
+    
+    # Voxelisation
+    counts, class_maj = LIDAR_couches_LEGO_LDRAW(lidar_data, taille_xy=1.0, lego_ratio=1.2, densite_min=1)
+    
+    # Exportation LDraw (simulation fichiers)
+    print("Génération des instructions LDraw (simulation fichiers)...")
+    ldraw_sans_class = voxel_LDRAW(counts, nom_fichier=OUTPUT_DIR/"test_factory_gris.ldr")
+    ldraw_class = voxel_LDRAW_classif(counts, class_maj, nom_fichier=OUTPUT_DIR/"test_factory_color.ldr")
+    
+    nb_voxels = np.count_nonzero(counts)
+    print(f"Données voxelisées : {nb_voxels} voxels pleins.")
+
+    print("\n---------------------------------------------------")
+
+    # 2. TEST : Numpy -> Briques (MODE COULEUR)
+    # -----------------------------------------
+    print("TEST A : Conversion NumPy -> Briques (COULEUR)")
+    briques_couleur = bricks_from_numpy(counts, class_maj, visualisation="COULEUR")
+    
+    if len(briques_couleur) > 0:
+        b = briques_couleur[0]
+        print(f"   [OK] {len(briques_couleur)} briques générées.")
+        
+        # Validation nombre
+        if len(briques_couleur) == nb_voxels:
+            print("   [OK] Le nombre de briques correspond au nombre de voxels.")
+        else:
+            print(f"   [ERREUR] {len(briques_couleur)} briques vs {nb_voxels} voxels.")
+
+        # Validation couleur
+        b_colore = next((b for b in briques_couleur if b.color != 16), None)
+        if b_colore:
+            print(f"   [OK] Validation couleur : Trouvé brique couleur {b_colore.color} (Classe mappée).")
+        else:
+            print("   Note : Toutes les briques sont grises (peut-être normal selon l'échantillon).")
+    else:
+        print("   [!] Aucune brique générée.")
+
+    print("\n---------------------------------------------------")
+
+    # 3. TEST : Numpy -> Briques (MODE GRIS)
+    # --------------------------------------
+    print("TEST B : Conversion NumPy -> Briques (GRIS)")
+    briques_gris = bricks_from_numpy(counts, class_maj, visualisation="GRIS")
+    
+    if len(briques_gris) > 0:
+        # Vérification : Toutes les briques doivent être 16
+        toutes_grises = all(bk.color == 16 for bk in briques_gris)
+        if toutes_grises:
+            print("   [OK] Validation réussie : Toutes les briques sont couleur 16 (DEFAULT_GRAY).")
+        else:
+            print("   [ERREUR] Certaines briques ne sont pas grises !")
+
+    print("\n---------------------------------------------------")
+
+    # 4. TEST : LDraw File -> Briques (Round-Trip Test)
+    # -----------------------------------------------------------
+    print("TEST C : Conversion Fichier LDraw -> Briques (Parsing)")
+    print("   Utilisation des données générées par voxel_LDRAW_classif...")
+    
+    # On utilise les lignes générées à l'étape 1 (ldraw_class)
+    briques_parsed = bricks_from_ldr(ldraw_class)
+
+    print(f"   Briques parsées : {len(briques_parsed)}")
+
+    if len(briques_parsed) == len(briques_couleur):
+        print("   [OK] Nombre de briques identique entre NumPy Direct et LDraw Parsing.")
+        
+        # Comparaison de la première brique (Attention, l'ordre peut varier, on trie pour comparer)
+        # On compare un échantillon au hasard
+        idx = 0
+        b_ref = briques_couleur[idx]
+        # On cherche une brique correspondante dans parsed
+        b_parsed_match = next((b for b in briques_parsed if b.x == b_ref.x and b.y == b_ref.y and b.layer == b_ref.layer), None)
+        
+        if b_parsed_match:
+            print(f"   [OK] Correspondance géométrique trouvée pour la brique {b_ref}.")
+            if b_parsed_match.color == b_ref.color:
+                print(f"   [OK] La couleur correspond ({b_ref.color}).")
+            else:
+                 print(f"   [ERREUR] Couleur divergente : Ref={b_ref.color} vs Parsed={b_parsed_match.color}")
+        else:
+            print(f"   [ERREUR] Impossible de retrouver la brique {b_ref} dans le set parsé.")
+
+    else:
+        print(f"   [ERREUR] Différence de quantité : Direct={len(briques_couleur)} vs Parsed={len(briques_parsed)}")
+
+
+    print("\n=== Fin du test ===\n")
