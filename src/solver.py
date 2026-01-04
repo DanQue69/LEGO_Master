@@ -24,9 +24,8 @@ from LIDAR_numpy import LIDAR_numpy_utile
 from LIDAR_couches import LIDAR_couches, LIDAR_couches_LEGO, LIDAR_couches_LEGO_LDRAW
 from LIDAR_LDRAW import voxel_LDRAW, voxel_LDRAW_classif
 
-from merge import Brick
+from merge import Brick, merge_bricks, merge_bricks_side, VALID_SIZES
 from collections import defaultdict, Counter
-from merge import merge_bricks
 from cost_function import total_cost_function
 
 
@@ -96,177 +95,234 @@ def print_brick_stats(bricks):
 
 
 def export_to_ldr(bricks, filename):
-    """
-    Génère le fichier .ldr final.
-    - Si la brique existe dans LEGO_PARTS, utilise le vrai fichier .dat (avec rotation si besoin).
-    - Sinon, utilise une brique 1x1 étirée (méthode fallback).
-    """
-    header = [
-        "0 Optimized LEGO Model\n",
-        "0 Name: " + str(filename) + "\n",
-        "0 Author: Solver Algo Greedy\n"
-    ]
-    
+    """Génère le fichier .ldr final avec positionnement corrigé."""
+    header = ["0 Optimized LEGO Model\n", "0 Name: " + str(filename) + "\n", "0 Author: Solver Smart V4\n"]
     lines = []
     
-    # Facteurs d'échelle LDraw
+    # Paramètres LDraw
     LDR_UNIT = 20.0
     LDR_HEIGHT = 24.0
 
     for b in bricks:
-        # 1. Calcul du centre géométrique (Position)
-        # ------------------------------------------
-        # Coin de la brique en unités LDraw
+        # Coordonnées du coin "Grid" converties en LDraw
         x_coin = b.x * LDR_UNIT
         y_coin = b.y * LDR_UNIT
         z_pos = -b.layer * LDR_HEIGHT 
 
-        # Dimensions réelles
+        # Dimensions réelles de la brique
         dim_x = b.length * LDR_UNIT
         dim_y = b.width * LDR_UNIT
+        
+        # Centre géométrique
+        center_x = x_coin + (dim_x / 2.0)
+        center_y = y_coin + (dim_y / 2.0)
 
-        # Le centre pour LDraw est : Coin + Demi-Dimension - Demi-Stud(10)
-        center_x = x_coin + (dim_x / 2.0) - 10.0
-        center_y = y_coin + (dim_y / 2.0) - 10.0
-
-        # 2. Identification de la pièce
-        # -----------------------------
-        # On trie (largeur, longueur) pour matcher le dictionnaire (min, max)
         dims_sorted = tuple(sorted((b.width, b.length)))
         part_file = LEGO_PARTS.get(dims_sorted)
 
         if part_file:
-            # === CAS A : PIÈCE RÉELLE EXISTANTE ===
-            
-            # Gestion de la Rotation (Orientation)
-            # Par défaut, les pièces LDraw ont leur longueur alignée sur X.
-            
-            # Matrice d'identité (Pas de rotation)
-            # 1 0 0 | 0 1 0 | 0 0 1
+            # Gestion Rotation (LDraw standard aligné sur X)
             a, b_rot, c, d, e, f, g, h, i = 1, 0, 0, 0, 1, 0, 0, 0, 1
-
-            need_rotation = False
             
-            # Si c'est une pièce carrée (2x2, 1x1), l'orientation importe peu géométriquement
-            if b.length == b.width:
-                pass 
+            # [CORRECTION CRITIQUE] 
+            # On ne regarde plus l'attribut b.orientation (qui peut être trompeur après fusion 2D).
+            # On regarde la géométrie physique : 
+            # Si la brique est plus profonde (Y) que large (X), il faut tourner la pièce standard.
+            if b.width > b.length:
+                 # Rotation 90° autour de Y (Vertical)
+                 a, b_rot, c = 0, 0, 1
+                 d, e, f     = 0, 1, 0
+                 g, h, i     = -1, 0, 0
             
-            # Si orientation = 'V' (Vertical dans la grille NumPy = Axe Y)
-            # Alors que la pièce LDraw par défaut est allongée sur X.
-            elif b.orientation == "V":
-                need_rotation = True
-
-            if need_rotation:
-                # Rotation 90 degrés autour de l'axe Y (Vertical LDraw)
-                # X -> Z, Z -> -X
-                # Matrice : 0 0 -1 | 0 1 0 | 1 0 0
-                a, b_rot, c = 0, 0, 1
-                d, e, f     = 0, 1, 0
-                g, h, i     = -1, 0, 0
-
             line = f"1 {b.color} {center_x:.2f} {z_pos:.2f} {center_y:.2f} {a} {b_rot} {c} {d} {e} {f} {g} {h} {i} {part_file}\n"
-        
         else:
-            # === CAS B : PIÈCE INCONNUE (FALLBACK) ===
-            # On utilise la méthode d'étirement sur une 3005.dat (1x1)
-            
+            # Fallback
             mat_a = b.length
-            mat_e = 1 
             mat_i = b.width
-            
-            # On remet le scale matrix simple
-            line = f"1 {b.color} {center_x:.2f} {z_pos:.2f} {center_y:.2f} {mat_a} 0 0 0 {mat_e} 0 0 0 {mat_i} 3005.dat\n"
+            line = f"1 {b.color} {center_x:.2f} {z_pos:.2f} {center_y:.2f} {mat_a} 0 0 0 1 0 0 0 {mat_i} 3005.dat\n"
 
         lines.append(line)
 
     with open(filename, "w") as f:
         f.writelines(header)
         f.writelines(lines)
-    
     print(f"[Export] Fichier généré : {filename} ({len(bricks)} briques)")
 
-
-def optimize_layer_1d(bricks, orientation):
+def get_best_partition(total_length, width_ref):
     """
-    Fusionne les briques d'une couche dans une direction donnée (H ou V).
+    Découpe une longueur totale en segments valides (les plus grands possibles).
+    Exemple (Target 7) -> [4, 3] (car 7 n'existe pas, mais 4 et 3 oui).
     """
-    # 1. Tri intelligent des briques
-    if orientation == "H":
-        # Pour fusionner horizontalement (------), on parcourt ligne par ligne (Y), puis colonne (X)
-        bricks.sort(key=lambda b: (b.y, b.x))
-        # On force l'orientation voulue pour tenter la fusion
-        for b in bricks: b.orientation = "H"
+    parts = []
+    remaining = total_length
+    
+    # On récupère les longueurs valides pour cette largeur spécifique
+    valid_lengths = []
+    for (l, w) in VALID_SIZES:
+        if w == width_ref: valid_lengths.append(l)
+        if l == width_ref: valid_lengths.append(w)
+    
+    # Tri décroissant pour être Glouton (prendre la plus grande possible)
+    valid_lengths = sorted(list(set(valid_lengths)), reverse=True)
+    
+    while remaining > 0:
+        found = False
+        for L in valid_lengths:
+            if L <= remaining:
+                parts.append(L)
+                remaining -= L
+                found = True
+                break
+        if not found:
+            # Cas de secours théorique (brique 1x1 toujours dispo normalement)
+            parts.append(1)
+            remaining -= 1
             
-    else: # Vertical
-        # Pour fusionner verticalement (|), on parcourt colonne par colonne (X), puis ligne (Y)
+    return parts
+
+def optimize_layer_smart(bricks, orientation):
+    """
+    Passe 1 (Intelligente) : 
+    1. Identifie les "runs" continus de briques (même couleur, alignées).
+    2. Calcule la longueur totale.
+    3. Partitionne cette longueur en briques optimales selon VALID_SIZES.
+    """
+    # Tri
+    if orientation == "H":
+        bricks.sort(key=lambda b: (b.y, b.x)) 
+        attr_main = 'x' # L'axe qui grandit
+        attr_cross = 'y' # L'axe constant
+        dim_main = 'length'
+        dim_cross = 'width'
+    else: # V
         bricks.sort(key=lambda b: (b.x, b.y))
-        for b in bricks: b.orientation = "V"
+        attr_main = 'y'
+        attr_cross = 'x'
+        dim_main = 'width' # Attention, en V la longueur est sur Y donc c'est width dans notre modèle
+        dim_cross = 'length' 
+
+    optimized = []
+    if not bricks: return []
+
+    current_run = [bricks[0]]
+    
+    for b in bricks[1:]:
+        last = current_run[-1]
+        
+        # Vérification continuité : même couleur, même alignement, et touche directement
+        # Touche directement : coordonnée main du nouveau == coord main du dernier + sa longueur
+        is_continuous = (
+            getattr(b, attr_cross) == getattr(last, attr_cross) and 
+            b.color == last.color and
+            getattr(b, attr_main) == getattr(last, attr_main) + getattr(last, dim_main)
+        )
+        
+        if is_continuous:
+            current_run.append(b)
+        else:
+            # Fin du run -> On traite le groupe
+            optimized.extend(process_run(current_run, orientation))
+            current_run = [b]
+            
+    # Dernier run
+    optimized.extend(process_run(current_run, orientation))
+    return optimized
+
+def process_run(run_bricks, orientation):
+    """Transforme une suite de briques brutes (ex: 7x 1x1) en briques optimisées (ex: 1x4 + 1x3)."""
+    if not run_bricks: return []
+    
+    ref_b = run_bricks[0]
+    
+    if orientation == "H":
+        # Somme des longueurs
+        total_len = sum(b.length for b in run_bricks)
+        width_ref = ref_b.width # Doit être 1 normalement
+        
+        # Partitionnement optimal
+        segments = get_best_partition(total_len, width_ref)
+        
+        # Création des nouvelles briques
+        new_bricks = []
+        curr_x = ref_b.x
+        for seg_len in segments:
+            new_bricks.append(Brick(ref_b.layer, curr_x, ref_b.y, seg_len, width_ref, ref_b.color, "H"))
+            curr_x += seg_len
+            
+    else: # V
+        # Somme des largeurs (qui sont la dimension Y)
+        total_len = sum(b.width for b in run_bricks)
+        width_ref = ref_b.length # Largeur visuelle (X)
+        
+        segments = get_best_partition(total_len, width_ref)
+        
+        new_bricks = []
+        curr_y = ref_b.y
+        for seg_len in segments:
+            # En Vertical : length=largeur(X), width=longueur(Y)
+            new_bricks.append(Brick(ref_b.layer, ref_b.x, curr_y, width_ref, seg_len, ref_b.color, "V"))
+            curr_y += seg_len
+            
+    return new_bricks
+
+
+def optimize_layer_2d_side(bricks, orientation):
+    """Passe 2 : Fusion latérale (Élargissement) pour créer du 2xN."""
+    if orientation == "H":
+        bricks.sort(key=lambda b: (b.x, b.y))
+    else: 
+        bricks.sort(key=lambda b: (b.y, b.x))
     
     merged_list = []
+    if not bricks: return []
     
-    if not bricks:
-        return []
-
-    # Algorithme Glouton (Greedy)
-    current_brick = bricks[0]
-    
-    for next_brick in bricks[1:]:
-        # On tente de fusionner la courante avec la suivante
-        merged = merge_bricks(current_brick, next_brick)
-        
-        if merged:
-            # SUCCÈS : La brique grandit, on continue avec elle
-            current_brick = merged
-        else:
-            # ÉCHEC : La brique est finie (rupture couleur, géométrie ou inventaire)
-            merged_list.append(current_brick)
-            current_brick = next_brick # On passe à la suivante
-            
-    # Ne pas oublier la dernière brique
-    merged_list.append(current_brick)
-    
+    i = 0
+    while i < len(bricks):
+        current = bricks[i]
+        # On tente de fusionner avec le voisin immédiat dans la liste triée
+        if i + 1 < len(bricks):
+            next_b = bricks[i+1]
+            merged = merge_bricks_side(current, next_b)
+            if merged:
+                merged_list.append(merged)
+                i += 2 # On a consommé 2 briques
+                continue
+        # Sinon on garde la brique telle quelle
+        merged_list.append(current)
+        i += 1
     return merged_list
 
-
 def solve_greedy_stripe(bricks):
-    """
-    Stratégie principale : Rayures (Stripes).
-    - Couches paires : Fusion Horizontale.
-    - Couches impaires : Fusion Verticale.
-    """
+    """Stratégie : Rayures + Partitionnement Intelligent + Fusion 2D."""
     print(f"[Solver] Démarrage... ({len(bricks)} briques initiales)")
-
-
-    # 1. Regrouper par couches
+    
     layers = defaultdict(list)
     for b in bricks:
         layers[b.layer].append(b)
     
     final_bricks = []
     
-    # 2. Traiter chaque couche
-    sorted_layer_indices = sorted(layers.keys())
-    
-    for layer_idx in sorted_layer_indices:
+    for layer_idx in sorted(layers.keys()):
         layer_content = layers[layer_idx]
         
-        # Déterminer la direction de fusion
         if layer_idx % 2 == 0:
-            target_orientation = "H"
+            orient = "H"
         else:
-            target_orientation = "V"
+            orient = "V"
 
-        # 3. Optimisation de la couche
-        optimized_layer = optimize_layer_1d(layer_content, target_orientation)
-        final_bricks.extend(optimized_layer)
+        # Passe 1 : Partitionnement Intelligent (1x1 -> 1xN optimal)
+        pass1_bricks = optimize_layer_smart(layer_content, orient)
+        
+        # Passe 2 : Élargissement (1xN -> 2xN)
+        pass2_bricks = optimize_layer_2d_side(pass1_bricks, orient)
+        
+        final_bricks.extend(pass2_bricks)
 
-    
-    # Statistiques
     reduction = 100 * (1 - len(final_bricks) / len(bricks))
-    print(f"[Solver] Briques : {len(bricks)} -> {len(final_bricks)} (Réduction : {reduction:.1f}%)")
+    print(f"[Solver] Terminé. Briques : {len(bricks)} -> {len(final_bricks)} (Réduction : {reduction:.1f}%)")
     
+    print_brick_stats(final_bricks)
     return final_bricks
-
 
 
 if __name__ == "__main__":
@@ -342,7 +398,7 @@ if __name__ == "__main__":
         G = graphe_filtre_sol(G, class_sol=2)
 
         # 4. Consolidation (Piliers)
-        G = ajouter_sol_coque_pillier(G, class_sol=2, class_bat=6, n_min=1, pillar_step=4, pillar_width=2)
+        G = ajouter_sol_coque_pillier(G, class_sol=2, class_bat=6, n_min=2, pillar_step=4, pillar_width=2)
         
         # 3. Remplissage Murs
         G = remplir_trous_verticaux(G, classes_batiment=[6])
@@ -369,4 +425,6 @@ if __name__ == "__main__":
         print(f"\n[SUCCÈS] Fichier de sortie : {nom_sortie}")
         print("Ce modèle contient la structure optimisée (piliers) ET les briques fusionnées.")
 
-        print(print_brick_stats(optimized_bricks))
+        print_brick_stats(optimized_bricks)
+
+

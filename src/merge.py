@@ -8,12 +8,15 @@ Ce module définit la classe Brick et les règles permettant de fusionner deux b
 # On inclut les inverses (ex: 2x4 et 4x2) pour simplifier les tests d'existence.
 # Source: Catalogue LEGO standard (Briques et Plaques utilisées comme briques)
 VALID_SIZES = {
-    # Briques 1.x
-    (1, 1), (1, 2), (1, 4),
-    # Briques 2.x
-    (2, 2), (2, 4), (2, 6), (2, 8),
-    # Inverses pour la recherche facile
-    (2, 1), (4, 1), (4, 2), (6, 2), (8, 2)
+    # --- Briques 1.x ---
+    (1, 1), (1, 2), (1, 3), (1, 4), (1, 6), (1, 8),
+    
+    # --- Briques 2.x ---
+    (2, 2), (2, 3), (2, 4), (2, 6), (2, 8), (2, 10),
+    
+    # --- Inverses (pour la recherche) ---
+    (2, 1), (3, 1), (4, 1), (6, 1), (8, 1),
+    (3, 2), (4, 2), (6, 2), (8, 2), (10, 2)
 }
 
 class Brick:
@@ -95,74 +98,72 @@ def are_neighbors(b1, b2):
 #        Fonctions de Fusion (Merging)
 # =======================================================
 
+# --- FUSION LONGITUDINALE (1D) ---
 def can_merge(b1, b2):
-    """
-    Vérifie les conditions strictes pour fusionner deux briques.
-    
-    Conditions :
-    1. Même couche
-    2. Même orientation
-    3. Même couleur [IMPORTANT]
-    4. Sont voisines
-    5. Alignement parfait (même largeur pour fusion H, même longueur pour fusion V)
-    """
-
-    if b1.layer != b2.layer:
+    """Fusion bout à bout (Allongement)."""
+    if b1.layer != b2.layer or b1.color != b2.color or b1.orientation != b2.orientation:
         return False
-    
-    if b1.color != b2.color: # Ajout de la contrainte couleur
-        return False
-
-    if b1.orientation != b2.orientation:
-        return False
-
     if not are_neighbors(b1, b2):
         return False
 
-    # Fusion horizontale (on étend X)
-    if b1.orientation == "H":
-        # Doivent être alignées sur Y et avoir la même hauteur (width)
+    if b1.orientation == "H": 
         return (b1.y == b2.y) and (b1.width == b2.width)
-
-    # Fusion verticale (on étend Y)
     if b1.orientation == "V":
-        # Doivent être alignées sur X et avoir la même largeur (length)
         return (b1.x == b2.x) and (b1.length == b2.length)
-
     return False
 
-
 def merge_bricks(b1, b2):
-    """
-    Fusionne deux briques SI la brique résultante est valide.
-    Retourne une nouvelle instance de Brick ou None.
-    """
-
-    if not can_merge(b1, b2):
-        return None
-
-    new_brick = None
-
-    # - Cas HORIZONTAL : les longueurs s’ajoutent
+    """Crée une brique plus longue."""
+    if not can_merge(b1, b2): return None
+    
     if b1.orientation == "H":
         x = min(b1.x, b2.x)
         length = b1.length + b2.length
-        
-        # Vérification inventaire AVANT de valider la fusion
         if is_valid_lego_part(length, b1.width):
-            new_brick = Brick(b1.layer, x, b1.y, length, b1.width, b1.color, "H")
-
-    # - Cas VERTICAL : les largeurs s’ajoutent (conceptuellement pour nous width augmente en Y)
+            return Brick(b1.layer, x, b1.y, length, b1.width, b1.color, "H")
+            
     elif b1.orientation == "V":
         y = min(b1.y, b2.y)
-        width = b1.width + b2.width
-        
-        # Vérification inventaire
+        width = b1.width + b2.width 
         if is_valid_lego_part(b1.length, width):
-            new_brick = Brick(b1.layer, b1.x, y, b1.length, width, b1.color, "V")
+            return Brick(b1.layer, b1.x, y, b1.length, width, b1.color, "V")
+    return None
 
-    return new_brick
+# --- FUSION LATÉRALE (2D) ---
+def can_merge_side(b1, b2):
+    """
+    Fusion côte à côte (Élargissement).
+    Exemple : Deux 1x4 côte à côte deviennent une 2x4.
+    """
+    if b1.layer != b2.layer or b1.color != b2.color or b1.orientation != b2.orientation:
+        return False
+    
+    if not are_neighbors(b1, b2):
+        return False
 
+    if b1.orientation == "H":
+        return (b1.x == b2.x) and (b1.length == b2.length)
+    elif b1.orientation == "V":
+        return (b1.y == b2.y) and (b1.width == b2.width)
+    return False
+
+def merge_bricks_side(b1, b2):
+    """Crée une brique plus large (ex: 2xN)."""
+    if not can_merge_side(b1, b2): return None
+    
+    if b1.orientation == "H":
+        y = min(b1.y, b2.y)
+        new_width = b1.width + b2.width
+        if is_valid_lego_part(b1.length, new_width):
+            return Brick(b1.layer, b1.x, y, b1.length, new_width, b1.color, "H")
+            
+    elif b1.orientation == "V":
+        x = min(b1.x, b2.x)
+        new_length = b1.length + b2.length
+        if is_valid_lego_part(new_length, b1.width):
+            return Brick(b1.layer, x, b1.y, new_length, b1.width, b1.color, "V")
+            
+    return None
 
 def get_neighbors(brick, bricks):
     """

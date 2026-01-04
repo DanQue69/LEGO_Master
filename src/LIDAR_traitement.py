@@ -698,9 +698,9 @@ if __name__ == "__main__":
     from LIDAR_LDRAW import voxel_LDRAW_classif
 
     # === FICHIER D'ENTRÉE ===
-    nom_fichier = "sample.laz"   # Remplacer par le nom du fichier .laz souhaité
+    nom_fichier = "exemple.laz"   # Remplacer par le nom du fichier .laz souhaité
     file_path = DATA_DIR / nom_fichier
-    output_path_test = OUTPUT_DIR / "LIDAR_LDRAW_traitement"
+    output_path_test = OUTPUT_DIR 
 
     # Vérification de sécurité
     if not file_path.exists():
@@ -722,7 +722,6 @@ if __name__ == "__main__":
         longueur_x=80, 
         longueur_y=80
     )
-    print(f"   -> {len(lidar_data)} points chargés en {time.time()-t0:.2f}s.\n")
 
     # 2. VOXELISATION INITIALE
     # ------------------------
@@ -740,7 +739,6 @@ if __name__ == "__main__":
     # ---------------------
     print("3. Conversion en Graphe 6-connexe...")
     G = voxel_graphe(counts, class_maj)
-    print(f"   -> Graphe construit en {time.time()-t0:.2f}s : {len(G.nodes())} noeuds, {len(G.edges())} arêtes.\n")
 
     # 4. TRAITEMENTS TOPOLOGIQUES
     # ---------------------------
