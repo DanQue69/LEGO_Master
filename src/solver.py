@@ -33,7 +33,6 @@ from cost_function import total_cost_function
 # =============================================================================
 # CATALOGUE DE PIÈCES LDRAW
 # Mapping (Largeur, Longueur) -> Fichier .dat
-# Note : Toujours mettre la plus petite dimension en premier dans la clé (min, max)
 # =============================================================================
 LEGO_PARTS = {
     # --- Briques 1.x ---
@@ -124,10 +123,6 @@ def export_to_ldr(bricks, filename):
             # Gestion Rotation (LDraw standard aligné sur X)
             a, b_rot, c, d, e, f, g, h, i = 1, 0, 0, 0, 1, 0, 0, 0, 1
             
-            # [CORRECTION CRITIQUE] 
-            # On ne regarde plus l'attribut b.orientation (qui peut être trompeur après fusion 2D).
-            # On regarde la géométrie physique : 
-            # Si la brique est plus profonde (Y) que large (X), il faut tourner la pièce standard.
             if b.width > b.length:
                  # Rotation 90° autour de Y (Vertical)
                  a, b_rot, c = 0, 0, 1
@@ -156,13 +151,11 @@ def get_best_partition(total_length, width_ref):
     parts = []
     remaining = total_length
     
-    # On récupère les longueurs valides pour cette largeur spécifique
     valid_lengths = []
     for (l, w) in VALID_SIZES:
         if w == width_ref: valid_lengths.append(l)
         if l == width_ref: valid_lengths.append(w)
     
-    # Tri décroissant pour être Glouton (prendre la plus grande possible)
     valid_lengths = sorted(list(set(valid_lengths)), reverse=True)
     
     while remaining > 0:
@@ -174,7 +167,6 @@ def get_best_partition(total_length, width_ref):
                 found = True
                 break
         if not found:
-            # Cas de secours théorique (brique 1x1 toujours dispo normalement)
             parts.append(1)
             remaining -= 1
             
@@ -198,7 +190,7 @@ def optimize_layer_smart(bricks, orientation):
         bricks.sort(key=lambda b: (b.x, b.y))
         attr_main = 'y'
         attr_cross = 'x'
-        dim_main = 'width' # Attention, en V la longueur est sur Y donc c'est width dans notre modèle
+        dim_main = 'width' 
         dim_cross = 'length' 
 
     optimized = []
@@ -209,8 +201,6 @@ def optimize_layer_smart(bricks, orientation):
     for b in bricks[1:]:
         last = current_run[-1]
         
-        # Vérification continuité : même couleur, même alignement, et touche directement
-        # Touche directement : coordonnée main du nouveau == coord main du dernier + sa longueur
         is_continuous = (
             getattr(b, attr_cross) == getattr(last, attr_cross) and 
             b.color == last.color and
@@ -220,11 +210,9 @@ def optimize_layer_smart(bricks, orientation):
         if is_continuous:
             current_run.append(b)
         else:
-            # Fin du run -> On traite le groupe
             optimized.extend(process_run(current_run, orientation))
             current_run = [b]
             
-    # Dernier run
     optimized.extend(process_run(current_run, orientation))
     return optimized
 

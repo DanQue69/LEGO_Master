@@ -51,7 +51,7 @@ except ImportError as e:
 # "COMPLET" :                       Chargement complet du fichier LIDAR
 # "ECHANTILLON_CARRE_ALEATOIRE" :   Chargement d'un échantillon aléatoire en zone carrée
 # "ECHANTILLON_RECTANGLE" :         Chargement d'un échantillon dans une zone rectangulaire définie
-MODE_IMPORT = "COMPLET"
+MODE_IMPORT = "ECHANTILLON_RECTANGLE"
 NOM_FICHIER = "exemple.laz"
 
 # 2. PARAMÈTRES DE VOXELISATION
@@ -94,7 +94,7 @@ PARAM_FILTRE_SOL = {
 
 # D. Consolidation du sol 
 # Choix : "PILIERS" (Recommandé), "COQUE" (Économique), "REMPLI" (Massif), "AUCUN"
-TYPE_CONSOLIDATION = "AUCUN" 
+TYPE_CONSOLIDATION = "PILIERS" 
 PARAM_CONSOLIDATION = {
     "class_sol": 2, 
     "class_bat": 6, 
@@ -248,8 +248,9 @@ if __name__ == "__main__":
         p_nmin = PARAM_CONSOLIDATION["n_min"]
 
         if TYPE_CONSOLIDATION == "PILIERS":
-            step = PARAM_CONSOLIDATION.get("pillar_step", 4)
-            G = ajouter_sol_coque_pillier(G, class_sol=p_sol, class_bat=p_bat, n_min=p_nmin, pillar_step=step, pillar_width=2)
+            step = PARAM_CONSOLIDATION.get("pillar_step")
+            pillar_width = PARAM_CONSOLIDATION.get("pillar_width")
+            G = ajouter_sol_coque_pillier(G, class_sol=p_sol, class_bat=p_bat, n_min=p_nmin, pillar_step=step, pillar_width=pillar_width)
         
         elif TYPE_CONSOLIDATION == "COQUE":
             G = ajouter_sol_coque(G, class_sol=p_sol, class_bat=p_bat, n_min=p_nmin)

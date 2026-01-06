@@ -30,7 +30,7 @@ SCALE_Z = 24.0
 
 # === Mapping Couleurs (LIDAR -> LEGO) ===
 
-# # === Dictionnaire classification LIDAR en couleur LDraw hexadécimal (Direct Color) ===
+# # === Dictionnaire classification LIDAR en couleur LDraw hexadécimal ===
 # # Décommenter si besoin de correspondance visuelle stricte.
 # LIDAR_TO_LEGO_COLORS_HEX = {
 #     1: 0x2000000,   # Non classé => noir
@@ -46,7 +46,7 @@ SCALE_Z = 24.0
 #     67:0x2FFFF00,   # Divers bâtis => jaune
 # }
 
-# === Dictionnaire classification LIDAR en couleur LDraw classique (Codes entiers) ===
+# === Dictionnaire classification LIDAR en couleur LDraw classique ===
 # Correspond aux couleurs standard de la palette LDraw et aux briques réelles LEGO.
 LIDAR_TO_LEGO_COLORS = {
     1: 0,   # Non classé → Noir
@@ -76,7 +76,6 @@ def bricks_from_ldr(lignes):
     for line in lignes:
         parts = line.strip().split()
         
-        # Format LDraw : 1 <couleur> <x> <z_hauteur> <y> ...
         if not parts or parts[0] != "1" or len(parts) < 5:
             continue
 
@@ -131,7 +130,6 @@ def bricks_from_numpy(counts, class_maj=None, visualisation="COULEUR"):
         # Gestion de la couleur
         if visualisation == "COULEUR" and class_maj is not None:
             c_lidar = class_maj[iy, ix, iz]
-            # On récupère la couleur standard, ou le gris 16 par défaut si classe inconnue
             lego_color = LIDAR_TO_LEGO_COLORS.get(c_lidar, DEFAULT_GRAY)
         
         # Création de la brique unitaire

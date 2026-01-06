@@ -30,16 +30,15 @@ def perpendicularity_penalty_fast(layer_bricks, grid, current_z):
     C'est la règle de base : il faut croiser les briques (H sur V, V sur H).
     """
     penalty = 0
-    # Pour éviter de compter plusieurs fois la même paire (car une brique couvre plusieurs voxels)
     processed_pairs = set()
 
     for b in layer_bricks:
         x1, y1, x2, y2 = b.bbox()
         
-        # On scanne la surface de la brique courante
+        # Scan la surface de la brique courante
         for ix in range(x1, x2):
             for iy in range(y1, y2):
-                # Qui est en dessous (z-1) ?
+
                 brick_below = grid.get((current_z - 1, ix, iy))
                 
                 if brick_below:
@@ -70,10 +69,6 @@ def vertical_boundary_penalty_fast(layer_bricks, grid, current_z):
         # On vérifie les deux extrémités de la brique selon son orientation
         # Si b est Horizontal, ses bords pertinents sont à x1 et x2 (bords verticaux)
         # Si b est Vertical, ses bords pertinents sont à y1 et y2 (bords horizontaux dans le plan)
-        
-        # NOTE : Pour simplifier et être robuste, on vérifie simplement si le voxel
-        # juste "avant" le bord et juste "après" le bord dans la couche du dessous
-        # appartiennent à des briques différentes (ou vide).
         
         # --- Cas Horizontal (Bords gauche/droite) ---
         if b.orientation == "H":
@@ -123,7 +118,6 @@ def horizontal_alignment_penalty_fast(layer_bricks, grid, current_z):
         center_x = (x1 + x2) / 2.0
         center_y = (y1 + y2) / 2.0
         
-        # On cherche les voisins dans la MÊME couche
         neighbors = set()
         
         if b.orientation == "H":

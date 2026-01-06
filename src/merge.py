@@ -5,18 +5,17 @@ Ce module définit la classe Brick et les règles permettant de fusionner deux b
 """
 
 # Catalogue simplifié des briques standard (Largeur, Longueur)
-# On inclut les inverses (ex: 2x4 et 4x2) pour simplifier les tests d'existence.
-# Source: Catalogue LEGO standard (Briques et Plaques utilisées comme briques)
+# Il faut que ca corresponde au catalogie de pièces LDraw dans solver.py
 VALID_SIZES = {
     # --- Briques 1.x ---
-    (1, 1), (1, 2), (1, 3), (1, 4), (1, 6), (1, 8),
+    (1, 1), (1, 2), (1, 4), 
     
     # --- Briques 2.x ---
-    (2, 2), (2, 3), (2, 4), (2, 6), (2, 8), (2, 10),
+    (2, 2), (2, 4),
     
     # --- Inverses (pour la recherche) ---
-    (2, 1), (3, 1), (4, 1), (6, 1), (8, 1),
-    (3, 2), (4, 2), (6, 2), (8, 2), (10, 2)
+    (2, 1), (4, 1),
+    (4, 2)
 }
 
 class Brick:
