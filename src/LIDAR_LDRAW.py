@@ -150,7 +150,6 @@ def voxel_LDRAW_classif(counts, class_maj, nom_fichier="modele_LEGO_classif.ldr"
         67: 8,  # Divers bâtis → Gris foncé 
     }
 
-
     couleurs = np.array([ldraw_couleurs.get(c, 24) for c in voxel_class], dtype=int)
 
     # === Génération du header ===

@@ -309,7 +309,6 @@ def solve_greedy_stripe(bricks):
     reduction = 100 * (1 - len(final_bricks) / len(bricks))
     print(f"[Solver] Terminé. Briques : {len(bricks)} -> {len(final_bricks)} (Réduction : {reduction:.1f}%)")
     
-    print_brick_stats(final_bricks)
     return final_bricks
 
 
