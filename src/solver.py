@@ -1,8 +1,3 @@
-"""
-=== solver.py ===
-Algorithme d'optimisation pour fusionner les briques LEGO.
-Approche : Glouton Alterné (Alternating Greedy).
-"""
 # === Importations ===
 import sys
 import os
@@ -63,7 +58,7 @@ def print_brick_stats(bricks):
     stats = Counter()
     
     for b in bricks:
-        # On normalise les dimensions (petit x grand) pour que 2x4 et 4x2 soient comptés ensemble
+        # Normalisation des dimensions (petit x grand) pour que 2x4 et 4x2 soient comptés ensemble
         dims = tuple(sorted((b.width, b.length)))
         stats[dims] += 1
         
@@ -143,6 +138,7 @@ def export_to_ldr(bricks, filename):
         f.writelines(lines)
     print(f"[Export] Fichier généré : {filename} ({len(bricks)} briques)")
 
+
 def get_best_partition(total_length, width_ref):
     """
     Découpe une longueur totale en segments valides (les plus grands possibles).
@@ -182,8 +178,8 @@ def optimize_layer_smart(bricks, orientation):
     # Tri
     if orientation == "H":
         bricks.sort(key=lambda b: (b.y, b.x)) 
-        attr_main = 'x' # L'axe qui grandit
-        attr_cross = 'y' # L'axe constant
+        attr_main = 'x' 
+        attr_cross = 'y' 
         dim_main = 'length'
         dim_cross = 'width'
     else: # V
@@ -225,7 +221,7 @@ def process_run(run_bricks, orientation):
     if orientation == "H":
         # Somme des longueurs
         total_len = sum(b.length for b in run_bricks)
-        width_ref = ref_b.width # Doit être 1 normalement
+        width_ref = ref_b.width # Doit être à 1 normalement
         
         # Partitionnement optimal
         segments = get_best_partition(total_len, width_ref)
@@ -238,9 +234,9 @@ def process_run(run_bricks, orientation):
             curr_x += seg_len
             
     else: # V
-        # Somme des largeurs (qui sont la dimension Y)
+        # Somme des largeurs 
         total_len = sum(b.width for b in run_bricks)
-        width_ref = ref_b.length # Largeur visuelle (X)
+        width_ref = ref_b.length 
         
         segments = get_best_partition(total_len, width_ref)
         
@@ -252,7 +248,6 @@ def process_run(run_bricks, orientation):
             curr_y += seg_len
             
     return new_bricks
-
 
 def optimize_layer_2d_side(bricks, orientation):
     """Passe 2 : Fusion latérale (Élargissement) pour créer du 2xN."""
@@ -267,7 +262,7 @@ def optimize_layer_2d_side(bricks, orientation):
     i = 0
     while i < len(bricks):
         current = bricks[i]
-        # On tente de fusionner avec le voisin immédiat dans la liste triée
+        # Fusion si possible avec le voisin immédiat dans la liste triée
         if i + 1 < len(bricks):
             next_b = bricks[i+1]
             merged = merge_bricks_side(current, next_b)
@@ -279,6 +274,7 @@ def optimize_layer_2d_side(bricks, orientation):
         merged_list.append(current)
         i += 1
     return merged_list
+
 
 def solve_greedy_stripe(bricks):
     """Stratégie : Rayures + Partitionnement Intelligent + Fusion 2D."""

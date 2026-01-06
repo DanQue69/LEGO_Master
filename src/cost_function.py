@@ -11,7 +11,7 @@ def build_grid_map(bricks):
     """
     grid = {}
     for b in bricks:
-        # On mappe chaque voxel occupé par la brique vers la brique elle-même
+        # Cartographie de chaque voxel occupé par la brique vers la brique elle-même
         for dx in range(b.length):
             for dy in range(b.width):
                 # Coordonnées absolues du voxel
@@ -122,10 +122,10 @@ def horizontal_alignment_penalty_fast(layer_bricks, grid, current_z):
         
         if b.orientation == "H":
             # Voisins au-dessus (y-1) et au-dessous (y+1) localement
-            # On scanne tout le long de la brique
+            # Scan tout le long de la brique
             for ix in range(x1, x2):
                 n_top = grid.get((current_z, ix, y1 - 1))
-                n_bot = grid.get((current_z, ix, y2)) # y2 est exclusif, donc c'est la ligne d'après
+                n_bot = grid.get((current_z, ix, y2))
                 if n_top: neighbors.add(n_top)
                 if n_bot: neighbors.add(n_bot)
                 
@@ -143,14 +143,8 @@ def horizontal_alignment_penalty_fast(layer_bricks, grid, current_z):
             
             # Si b est H, les voisins créent des jonctions par leurs bords verticaux (nx1, nx2)
             if b.orientation == "H":
-                # On vérifie si un bord vertical de n tombe STRICTEMENT à l'intérieur de b
                 if x1 < nx1 < x2:
                     dist = abs(nx1 - center_x)
-                    # Formule : 1 / (distance + epsilon). Plus c'est proche du centre, moins c'est cher ?
-                    # ATTENTION : La logique LEGO veut que le T soit au milieu (Solidité).
-                    # Donc si distance est GRANDE (loin du centre, proche du bord), pénalité FORTE.
-                    # Ma logique précédente était inversée.
-                    # Correction : Pénalité = (distance au centre) / (demi-longueur)
                     penalty += (dist / ((x2 - x1)/2.0)) 
 
                 if x1 < nx2 < x2:
@@ -186,7 +180,6 @@ def total_cost_function(bricks, C1=1.0, C2=1.0, C3=1.0):
         return 0.0
 
     # 1. Construction de la carte spatiale (O(N))
-    # Indispensable pour que les fonctions _fast fonctionnent
     grid = build_grid_map(bricks)
     
     # 2. Organisation par couches
@@ -198,14 +191,10 @@ def total_cost_function(bricks, C1=1.0, C2=1.0, C3=1.0):
     total_cost = 0.0
     sorted_layers = sorted(layers.keys())
     
-    # On commence à la couche la plus basse + 1 (car besoin de la couche du dessous)
-    # Sauf pour P3 qui n'a pas besoin du dessous, mais simplifions.
-    
     for layer_idx in sorted_layers:
         current_bricks = layers[layer_idx]
         
         # P1 & P2 nécessitent une couche en dessous. 
-        # Si couche 0 (ou min), pas de pénalité verticale possible.
         if (layer_idx - 1) in layers:
             P1 = perpendicularity_penalty_fast(current_bricks, grid, layer_idx)
             P2 = vertical_boundary_penalty_fast(current_bricks, grid, layer_idx)

@@ -75,8 +75,8 @@ TAILLE_ZONE_ALEATOIRE = 50          # Taille de la zone carrée en mètres
 NB_POINTS_RECTANGLE = 1000000000    # Nombre de points max à récupérer
 X_MIN_RECTANGLE = 669680.0          # Coordonnée X du coin bas gauche du rectangle échantillonné
 Y_MIN_RECTANGLE = 6860143.0         # Coordonnée Y du coin bas gauche du rectangle échantillonné
-LONGUEUR_X_RECTANGLE = 150          # Longueur en x dans la direction Est-Ouest
-LONGUEUR_Y_RECTANGLE = 100          # Longueur en y dans la direction Nord-Sud
+LONGUEUR_X_RECTANGLE = 150          # Longueur en x dans la direction Est-Ouest en mètres
+LONGUEUR_Y_RECTANGLE = 100          # Longueur en y dans la direction Nord-Sud en mètres
 
 # 3. WORKFLOW DE GÉNÉRATION
 # -------------------------
@@ -92,7 +92,7 @@ VISUALISATION = "COULEUR"
 
 # Si VISUALISATION = "COULEUR", choisir le mode de rendu :
 # "STANDARD" : Couleurs proches de la palette officielle LEGO 
-# "HEX"      : Couleurs en Hexadécimal réglables dans LIDAR_LDRAW.py
+# "HEX"      : Couleurs en Hexadécimal réglables à la ligne 173 de ce script
 MODE_COULEUR = "STANDARD"
 
 # 5. PARAMÈTRES DE VOXELISATION

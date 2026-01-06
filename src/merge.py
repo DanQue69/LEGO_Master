@@ -5,7 +5,7 @@ Ce module définit la classe Brick et les règles permettant de fusionner deux b
 """
 
 # Catalogue simplifié des briques standard (Largeur, Longueur)
-# Il faut que ca corresponde au catalogie de pièces LDraw dans solver.py
+# Il faut que ca corresponde au catalogue de pièces LDraw dans solver.py
 VALID_SIZES = {
     # --- Briques 1.x ---
     (1, 1), (1, 2), (1, 4), 

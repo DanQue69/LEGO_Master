@@ -1,6 +1,3 @@
-
-
-
 # === Importations ===
 import sys
 import os

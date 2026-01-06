@@ -125,7 +125,7 @@ if __name__ == "__main__":
     file_path = DATA_DIR / nom_fichier
     print(f"Traitement du fichier : {file_path}\n")
 
-    # Vérification de sécurité
+    # === Vérification de sécurité ===
     if not file_path.exists():
         print(f"ERREUR : Le fichier {nom_fichier} est introuvable dans {DATA_DIR}")
         print("Veuillez placer un fichier .laz dans le dossier 'data'.")
