@@ -222,6 +222,10 @@ def exporter_modele(counts, class_maj, chemin_sortie):
 
 
 
+# ==========================================
+# ===       EXECUTION PRINCIPALE         ===
+# ==========================================
+
 if __name__ == "__main__":
 
     # === A. Initialisation ===
