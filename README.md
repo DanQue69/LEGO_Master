@@ -290,6 +290,8 @@ En fonction du choix de votre mode de workflow `MODE_WORKFLOW`, différents doss
 - Si `MODE_WORKFLOW = DIRECT`, un seul dossier est créé dans `outputs/` :
   - `outputs/Resultat_Final/` : Uniquement les fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
 
+<br>
+
 Vous pouvez visualiser ces fichiers avec :
 - LDView (Visualisation rapide).
 - BrickLink Studio (Rendu photoréaliste et instructions de montage).
