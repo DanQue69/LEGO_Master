@@ -35,11 +35,11 @@ LiDAR_2_LEGO/
 │   ├── donnees_echantillonnees_LIDAR.py   # Echantillonage des données LiDAR
 │   ├── LIDAR_couches.py                   # Voxelisation 
 │   ├── LIDAR_traitement.py                # Traitements structurels des données
-│   ├── LIDAR_LDRAW.py                     # Génération fichiers .ldr
-│   ├── brique_merge.py                    # 
-│   ├── merge.py                           #  
-│   ├── cost_function.py                   # 
-│   └── solver.py                          # 
+│   ├── LIDAR_LDRAW.py                     # Génération fichiers .ldr intermédiaires
+│   ├── brique_merge.py                    # Conversion Voxels -> Brick
+│   ├── merge.py                           # Def Brick et règles fusion
+│   ├── cost_function.py                   # Fonction coût 
+│   └── solver.py                          # Algorithme optimisation (Greedy Stripe)
 │
 ├── main.py                    # Point d'entrée principal (Configuration & Exécution)
 ├── requirements.txt           # Liste des dépendances Python à installer sur votre machine
