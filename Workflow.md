@@ -38,6 +38,7 @@ H[MNS_TIFF.py]
 M[main.py]
 L[couches GeoTIFF]
 N[maquette intermédiaire LDRAW]
+S[maquette finale LDRAW]
 
 
 A --> B
@@ -59,6 +60,7 @@ R --> P
 G --> H
 I --> L
 J --> N
+P --> S
 
 
 %% Styles des couleurs
@@ -80,6 +82,7 @@ style O fill:#4da6ff,stroke:#333,stroke-width:1px
 style P fill:#4da6ff,stroke:#333,stroke-width:1px
 style Q fill:#4da6ff,stroke:#333,stroke-width:1px
 style R fill:#4da6ff,stroke:#333,stroke-width:1px
+style S fill:#9f6,stroke:#333,stroke-width:2px
 
 
     
