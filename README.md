@@ -1,6 +1,8 @@
 # Projet LiDAR_2_LEGO 
 
-Ce projet propose une chaîne de traitement complète ("pipeline") permettant de convertir des nuages de points LiDAR (format .laz) en modèles 3D constitués de briques LEGO (format .ldr).
+Ce projet propose une chaîne de traitement complète ("pipeline") permettant de convertir des nuages de points LiDAR (format .laz) en modèles 3D constitués de briques LEGO (format .ldr). 
+
+L'objectif est de créer un support de médiation tangible et open source, capable de transformer des données géospatiales complexes en maquettes physiques assemblables, tout en optimisant la structure et le nombre de briques utilisées.
 
 Conçu dans le cadre d'un Projet d'Initiation à la Recherche (ING2 - Géodata Paris), le code est optimisé pour traiter les données LiDAR HD de l'IGN (France).
 
@@ -27,13 +29,17 @@ LiDAR_2_LEGO/
 ├── outputs/                   # Dossier généré automatiquement contenant les résultats (modèles bruts, traités, finales, etc...) 
 │
 ├── src/                       # Code source Python (Modules internes) :
-│   ├── affichage_LIDAR.py               # Visualisation des métadonnées du fichier LiDAR
-│   ├── import_LIDAR.py                  # Lecture .laz/.las
-│   ├── LIDAR_numpy.py                   # Conversion LAS -> Numpy
-│   ├── donnees_echantillonnees_LIDAR.py # Echantillonage des données LiDAR
-│   ├── LIDAR_couches.py                 # Voxelisation 
-│   ├── LIDAR_traitement.py              # Traitements structurels des données
-│   └──  LIDAR_LDRAW.py                  # Génération fichiers .ldr
+│   ├── affichage_LIDAR.py                 # Visualisation des métadonnées du fichier LiDAR
+│   ├── import_LIDAR.py                    # Lecture .laz/.las
+│   ├── LIDAR_numpy.py                     # Conversion LAS -> Numpy
+│   ├── donnees_echantillonnees_LIDAR.py   # Echantillonage des données LiDAR
+│   ├── LIDAR_couches.py                   # Voxelisation 
+│   ├── LIDAR_traitement.py                # Traitements structurels des données
+│   ├── LIDAR_LDRAW.py                     # Génération fichiers .ldr intermédiaires
+│   ├── brique_merge.py                    # Conversion Voxels -> Brick
+│   ├── merge.py                           # Def Brick et règles fusion
+│   ├── cost_function.py                   # Fonction coût 
+│   └── solver.py                          # Algorithme optimisation (Greedy Stripe)
 │
 ├── main.py                    # Point d'entrée principal (Configuration & Exécution)
 ├── requirements.txt           # Liste des dépendances Python à installer sur votre machine
@@ -127,11 +133,54 @@ MODE_IMPORT = "MODE_CHOISI"
 
 - `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `"ECHANTILLON_RECTANGLE"`. Détail dans le fichier `affichage_LIDAR.py`.
 
-- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y. Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+- `"COMPLET"` : Traite l'intégralité du fichier `.laz`. Détail dans le fichier `LIDAR_numpy.py`.
 
 - `"ECHANTILLON_CARRE_ALEATOIRE"` : Prend une zone carrée au hasard dans le fichier définie par une longueur (m). Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+  - Paramètres :
+    - `NB_POINTS_ALEATOIRE` (défaut 1000000000, pour prendre tous les points) : Nombre maximum de points LiDAR à récupérer
+    - `TAILLE_ZONE_ALEATOIRE` (défaut 50) : Taille des côtés de la zone carrée en mètres
 
-- `"COMPLET"` : Traite l'intégralité du fichier `.laz`. Détail dans le fichier `LIDAR_numpy.py`.
+- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y. Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+  - Paramètres (réglés par défaut sur le bâtiment de Géodata Paris sur le fichier `exemple.laz`) : 
+    - `NB_POINTS_RECTANGLE` (défaut 1000000000, pour prendre tous les points) : Nombre maximum de points LiDAR à récupérer
+    - `X_MIN_RECTANGLE` (défaut 669680.0) : Coordonnée X du coin bas gauche du rectangle échantillonné
+    - `Y_MIN_RECTANGLE` (défaut 6860143.0) : Coordonnée Y du coin bas gauche du rectangle échantillonné
+    - `LONGUEUR_X_RECTANGLE` (défaut 150) : Longueur en x dans la direction Est-Ouest en mètres
+    - `LONGUEUR_Y_RECTANGLE` (défaut 100) : Longueur en y dans la direction Nord-Sud en mètres
+
+  <br>
+
+### Workflow
+
+Réglage des paramètres du workflow général.
+
+```python
+MODE_WORKFLOW = "WORKFLOW_CHOISI" 
+```
+
+- `"ETAPE_PAR_ETAPE"` : Génère un fichier export `.ldr` après chaque phase majeure (Voxelisation, Traitement, Optimisation). Idéal pour le debug ou pour visualiser les étapes intermédiaires.
+
+- `"DIRECT"` : Ne génère que le modèle final optimisé.
+
+<br>
+
+### Visualisation graphique
+
+Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie.
+
+```python
+VISUALISATION = "VISUALISATION_CHOISI" 
+```
+
+- `"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO.
+
+- `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
+
+Si vous choisissez le mode de visualisation colorée `VISUALISATION = "COULEUR"`, vous pouvez choisir le type de couleur des briques :
+
+- `"STANDARD"` : Couleurs des briques proches de la palette officielle LEGO. Idéal pour commander de vraies pièces.
+
+- `"HEX"` : Couleurs en Hexadécimal réglables à la ligne 173 du script `main.py`. Peut offrir un rendu visuel plus proche.
 
 <br>
 
@@ -147,17 +196,15 @@ Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches
 
 <br>
 
-### Visualisation graphique
+### Briques autorisées
 
-Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie. Détail dans le fichier `LIDAR_LDRAW.py`.
+Réglage du catalogue de pièces que le solver est autorisé à utiliser pour optimiser l'assemblage.
 
-```python
-VISUALISATION = "VISUALISATION_CHOISI" 
-```
+- `INVENTAIRE_BRIQUES` : Ensemble de tuples (largeur, longueur) définissant les dimensions de briques disponibles.
+  - Briques 1.x : par défaut (1x1), (1x2), (1x3), (1x4), (1x6), (1x8)
+  - Briques 2.x : par défaut (2x2), (2x3), (2x4), (2x6)
+  - Inverses : Les dimensions inversées doivent être présentes, par défaut (2, 1), (3, 1), (4, 1), (6, 1), (8, 1), (3, 2), (4, 2), (6, 2)
 
-- `"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur associée à sa classification est disponible dans le fichier `LIDAR_LDRAW.py`.
-
-- `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
 <br>
 
@@ -204,8 +251,9 @@ TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI"
 ```
 - Choix entre 3 Modes :
   - `"PILIERS"` : Crée une coque fine et ajoute des piliers verticaux réguliers.
-  - `"COQUE"` :
-  - `"REMPLI"` : 
+  - `"COQUE"` : Créé une coque fine vide à l'intérieur.
+  - `"REMPLI"` : Créé une coque et la remplie entièrement de sol.
+  - `"AUCUN"` : Pas de consolidation de sol.
 - Paramètres :
   - `class_sol` (défaut `2`) : La classe qui sera attribuée aux nouvelles briques de fondation.
   - `class_bat` (défaut `6`) : Classe utilisée comme "masque". L'algorithme évite de remplir l'intérieur des zones denses identifiées par cette classe.
@@ -221,8 +269,13 @@ TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI"
 - Paramètres :
   - `classes_batiment` (défaut `[6]`) : Liste des classes considérées comme des murs verticaux.
 
+<br>
 
+### Coût structurel
 
+Le pipeline intègre une fonction d'évaluation qui attribue un "score de coût" à la structure. Plus ce score est bas, plus la maquette est solide. Détail dans le fichier `cost_function.py`.
+
+Vous pouvez activer/désactiver (`True`/`False`) cette fonctionnalité.
 
 
 <br>
@@ -243,9 +296,19 @@ Une fois le déploiement sur votre machine réalisée et votre configuration ter
 python main.py
 ```
 
-Les résultats seront générés dans le dossier `outputs/` :
-- `outputs/Avant_Traitement/` : Fichiers `.ldr` bruts réalisés après la voxelisation et avant les traitements structurels.
-- `outputs/Apres_Traitement/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurels.
+Les résultats seront générés dans le dossier `outputs/`.
+
+En fonction du choix de votre mode de workflow `MODE_WORKFLOW`, différents dossiers vont se crééer :
+
+- Si `MODE_WORKFLOW = ETAPE_PAR_ETAPE`, 3 dossiers sont créés dans `outputs/` :
+  - `outputs/1_Apres_Voxelisation/` : Fichiers `.ldr` bruts réalisés après la voxelisation et avant les traitements structurels.
+  - `outputs/2_Apres_Traitement_Structurel/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurelse avant les algorithmes d'optimisation et de merging.
+  - `outputs/3_Resultat_Final/` : Fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
+ 
+- Si `MODE_WORKFLOW = DIRECT`, un seul dossier est créé dans `outputs/` :
+  - `outputs/Resultat_Final/` : Uniquement les fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
+
+<br>
 
 Vous pouvez visualiser ces fichiers avec :
 - LDView (Visualisation rapide).
@@ -264,10 +327,12 @@ Vous pouvez visualiser ces fichiers avec :
 
 
 
+
 ## Perspectives et Évolutions
 
-LPub3D
-
+- Génération de pages de montage via LPub3D.
+- Optimisation des algorithmes de traitements structurels, peuvent être trop long pour de grands fichiers `.laz`.
+- Ajout d'un algorithme génétique au lieu de notre actuel algorithme Greedy, `CALCULER_COUT_STRUCTUREL` sera alors intéressant à observer.
 
 
 

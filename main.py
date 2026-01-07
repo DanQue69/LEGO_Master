@@ -39,6 +39,7 @@ try:
     import brique_merge
     import merge 
     from merge import Brick
+    from cost_function import total_cost_function
     from brique_merge import bricks_from_ldr, bricks_from_numpy
     from solver import solve_greedy_stripe, export_to_ldr, print_brick_stats
 
@@ -63,7 +64,7 @@ NOM_FICHIER = "exemple.laz"      # Nom du fichier .laz à traiter (doit être da
 # "COMPLET" :                       Chargement complet du fichier LIDAR
 # "ECHANTILLON_CARRE_ALEATOIRE" :   Chargement d'un échantillon aléatoire en zone carrée
 # "ECHANTILLON_RECTANGLE" :         Chargement d'un échantillon dans une zone rectangulaire définie
-MODE_IMPORT = "AFFICHAGE_INFO_LIDAR"
+MODE_IMPORT = "ECHANTILLON_RECTANGLE"
 
 # Si MODE_IMPORT = "ECHANTILLON_CARRE_ALEATOIRE" :
 # Renseignez ici les paramètres
@@ -97,7 +98,7 @@ MODE_COULEUR = "STANDARD"
 
 # 5. PARAMÈTRES DE VOXELISATION
 # -----------------------------
-TAILLE_VOXEL = 2.0    # Résolution des voxels en mètres
+TAILLE_VOXEL = 1.0    # Résolution des voxels en mètres
 LDRAW_RATIO = 1.2     # Ratio de conversion LEGO (résolution/hauteur)
 DENSITE_MIN = 1       # Densité minimale de points par voxel pour être pris en compte  
 
@@ -159,6 +160,11 @@ PARAM_REMPLISSAGE = {
     "classes_batiment": [6]
 }
 
+# 8. CALCUL DE LA SOLIDITÉ STRUCTURELLE
+# --------------------------------------------
+# Activez (True) ou désactivez (False) cette étape.
+# Calculer le score de solidité (peut être long sur gros modèles)
+CALCULER_COUT_STRUCTUREL = True
 
 
 # ==========================================
@@ -406,9 +412,21 @@ if __name__ == "__main__":
     raw_bricks = bricks_from_numpy(counts_traite, class_maj_traite, visualisation=VISUALISATION)
     print(f"      ({len(raw_bricks)} briques à optimiser)")
 
+    # Coût structurel avant l'algorithme
+    if CALCULER_COUT_STRUCTUREL:
+        c_init = total_cost_function(raw_bricks)
+        print(f"   -> Score de solidité initial : {c_init:.1f}")
+
     # 2. Exécution du Solver Glouton (Greedy Stripe)
     print("   -> Exécution de l'algorithme d'assemblage...")
     final_bricks = solve_greedy_stripe(raw_bricks)
+
+    # Coût structurel après l'algorithme
+    if CALCULER_COUT_STRUCTUREL:
+        c_final = total_cost_function(final_bricks)
+        gain = c_init - c_final
+        print(f"   -> Score de solidité final   : {c_final:.1f}")
+        print(f"   -> Gain de solidité          : +{gain:.1f} points")
 
     # 3. Statistiques finales
     print(f"   -> Statistiques finales des briques...")

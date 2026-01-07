@@ -24,10 +24,22 @@ subgraph L4[" "]
     K[LIDAR_traitement.py]
 end
 
+subgraph L5[" "]
+    O[LIDAR_brique_merge.py]
+    P[LIDAR_solver.py]
+end
+
+subgraph indé[" "]
+    Q[merge.py]
+    R[cost_function.py]
+end
+
 H[MNS_TIFF.py]
 M[main.py]
 L[couches GeoTIFF]
-N[maquette LDRAW]
+N[maquette intermédiaire LDRAW]
+S[maquette finale LDRAW]
+
 
 A --> B
 A --> C
@@ -41,10 +53,14 @@ B --> I
 E --> I
 I --> J
 I --> K
-K --> J
+K --> O
+O --> P
+Q --> P
+R --> P
 G --> H
 I --> L
 J --> N
+P --> S
 
 
 %% Styles des couleurs
@@ -62,6 +78,11 @@ style K fill:#4da6ff,stroke:#333,stroke-width:1px
 style M fill:#4da6ff,stroke:#333,stroke-width:2px
 style L fill:#9f6,stroke:#333,stroke-width:2px
 style N fill:#9f6,stroke:#333,stroke-width:2px
+style O fill:#4da6ff,stroke:#333,stroke-width:1px
+style P fill:#4da6ff,stroke:#333,stroke-width:1px
+style Q fill:#4da6ff,stroke:#333,stroke-width:1px
+style R fill:#4da6ff,stroke:#333,stroke-width:1px
+style S fill:#9f6,stroke:#333,stroke-width:2px
 
 
     
