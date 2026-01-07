@@ -55,7 +55,7 @@ except ImportError as e:
 
 # 1. FICHIER D'ENTRÉE
 # -------------------
-NOM_FICHIER = "exemple.laz"
+NOM_FICHIER = "exemple.laz"      # Nom du fichier .laz à traiter (doit être dans le dossier 'data')
 
 # 2. MODE D'IMPORT
 # ---------------------------
@@ -63,7 +63,7 @@ NOM_FICHIER = "exemple.laz"
 # "COMPLET" :                       Chargement complet du fichier LIDAR
 # "ECHANTILLON_CARRE_ALEATOIRE" :   Chargement d'un échantillon aléatoire en zone carrée
 # "ECHANTILLON_RECTANGLE" :         Chargement d'un échantillon dans une zone rectangulaire définie
-MODE_IMPORT = "ECHANTILLON_RECTANGLE"
+MODE_IMPORT = "AFFICHAGE_INFO_LIDAR"
 
 # Si MODE_IMPORT = "ECHANTILLON_CARRE_ALEATOIRE" :
 # Renseignez ici les paramètres
@@ -97,7 +97,7 @@ MODE_COULEUR = "STANDARD"
 
 # 5. PARAMÈTRES DE VOXELISATION
 # -----------------------------
-TAILLE_VOXEL = 1.0    # Résolution des voxels en mètres
+TAILLE_VOXEL = 2.0    # Résolution des voxels en mètres
 LDRAW_RATIO = 1.2     # Ratio de conversion LEGO (résolution/hauteur)
 DENSITE_MIN = 1       # Densité minimale de points par voxel pour être pris en compte  
 
