@@ -129,11 +129,21 @@ MODE_IMPORT = "MODE_CHOISI"
 
 - `"AFFICHAGE_INFO_LIDAR"` : Affiche les métadonnées du fichier `.laz`, utile pour récupérer les bornes géographiques (Bounding Box) pour paramétrer le mode `"ECHANTILLON_RECTANGLE"`. Détail dans le fichier `affichage_LIDAR.py`.
 
-- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y. Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+- `"COMPLET"` : Traite l'intégralité du fichier `.laz`. Détail dans le fichier `LIDAR_numpy.py`.
 
 - `"ECHANTILLON_CARRE_ALEATOIRE"` : Prend une zone carrée au hasard dans le fichier définie par une longueur (m). Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+  - Paramètres :
+    - `NB_POINTS_ALEATOIRE` (défaut 1000000000, pour prendre tous les points) : Nombre maximum de points LiDAR à récupérer
+    - `TAILLE_ZONE_ALEATOIRE` (défaut 50) : Taille des côtés de la zone carrée en mètres
 
-- `"COMPLET"` : Traite l'intégralité du fichier `.laz`. Détail dans le fichier `LIDAR_numpy.py`.
+- `"ECHANTILLON_RECTANGLE"` : (Recommandé) Extrait une zone rectangulaire précise définie par les coordonnées X,Y du coin Sud/Ouest (Lambert 93) du rectangle et par sa longueur (m) en X et en Y. Détail dans le fichier `donnees_echantillonnees_LIDAR.py`.
+  - Paramètres (réglés par défaut sur le bâtiment de Géodata Paris sur le fichier `exemple.laz`) : 
+    - `NB_POINTS_ALEATOIRE` (défaut 1000000000, pour prendre tous les points) : Nombre maximum de points LiDAR à récupérer
+    - `X_MIN_RECTANGLE` (défaut 669680.0) : Coordonnée X du coin bas gauche du rectangle échantillonné
+    - `Y_MIN_RECTANGLE` (défaut 6860143.0) : Coordonnée Y du coin bas gauche du rectangle échantillonné
+    - `LONGUEUR_X_RECTANGLE` (défaut 150) : Longueur en x dans la direction Est-Ouest en mètres
+    - `LONGUEUR_Y_RECTANGLE` (défaut 100) : Longueur en y dans la direction Nord-Sud en mètres
+  
 
 <br>
 
