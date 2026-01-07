@@ -168,16 +168,15 @@ Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie.
 VISUALISATION = "VISUALISATION_CHOISI" 
 ```
 
-- `"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur associée à sa classification est disponible dans le fichier `LIDAR_LDRAW.py`.
+- `"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO.
 
 - `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
 Si vous choisissez le mode de visualisation colorée `VISUALISATION = "COULEUR"`, vous pouvez choisir le type de couleur des briques :
 
-- `"STANDARD"` : Couleurs des briques proches de la palette officielle LEGO 
+- `"STANDARD"` : Couleurs des briques proches de la palette officielle LEGO. Idéal pour commander de vraies pièces.
 
-- `"HEX"` : Couleurs en Hexadécimal réglables à la ligne 173 du script `main.py`
-
+- `"HEX"` : Couleurs en Hexadécimal réglables à la ligne 173 du script `main.py`. Peut offrir un rendu visuel plus proche.
 
 <br>
 
