@@ -162,7 +162,7 @@ MODE_WORKFLOW = "WORKFLOW_CHOISI"
 
 ### Visualisation graphique
 
-Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie. Détail dans le fichier `LIDAR_LDRAW.py`.
+Réglage des paramètres de visualisation graphique du fichier `.ldr` en sortie.
 
 ```python
 VISUALISATION = "VISUALISATION_CHOISI" 
@@ -278,9 +278,17 @@ Une fois le déploiement sur votre machine réalisée et votre configuration ter
 python main.py
 ```
 
-Les résultats seront générés dans le dossier `outputs/` :
-- `outputs/Avant_Traitement/` : Fichiers `.ldr` bruts réalisés après la voxelisation et avant les traitements structurels.
-- `outputs/Apres_Traitement/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurels.
+Les résultats seront générés dans le dossier `outputs/`.
+
+En fonction du choix de votre mode de workflow `MODE_WORKFLOW`, différents dossiers vont se crééer :
+
+- Si `MODE_WORKFLOW = ETAPE_PAR_ETAPE`, 3 dossiers sont créés dans `outputs/` :
+  - `outputs/1_Apres_Voxelisation/` : Fichiers `.ldr` bruts réalisés après la voxelisation et avant les traitements structurels.
+  - `outputs/2_Apres_Traitement_Structurel/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurelse avant les algorithmes d'optimisation et de merging.
+  - `outputs/3_Resultat_Final/` : Fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
+ 
+- Si `MODE_WORKFLOW = DIRECT`, un seul dossierest créé dans `outputs/` :
+  - `outputs/Resultat_Final/` : Uniquement les fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
 
 Vous pouvez visualiser ces fichiers avec :
 - LDView (Visualisation rapide).
