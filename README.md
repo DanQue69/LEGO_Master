@@ -192,6 +192,10 @@ Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches
 
 <br>
 
+### Briques autorisées
+
+<br>
+
 ### Algorithmes de traitements structurels
 
 Réglage des fonctions de traitements structurels avec leurs paramètres associés. Détail dans le fichier `LIDAR_traitement.py`.
