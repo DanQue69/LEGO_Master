@@ -287,7 +287,7 @@ En fonction du choix de votre mode de workflow `MODE_WORKFLOW`, différents doss
   - `outputs/2_Apres_Traitement_Structurel/` : Fichiers `.ldr` traités (nettoyés et consolidés) réalisés après les traitements structurelse avant les algorithmes d'optimisation et de merging.
   - `outputs/3_Resultat_Final/` : Fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
  
-- Si `MODE_WORKFLOW = DIRECT`, un seul dossierest créé dans `outputs/` :
+- Si `MODE_WORKFLOW = DIRECT`, un seul dossier est créé dans `outputs/` :
   - `outputs/Resultat_Final/` : Uniquement les fichiers `.ldr` optimisés avec briques mergées, réalisés après les algorithmes d'optimisation et de merging.
 
 Vous pouvez visualiser ces fichiers avec :
