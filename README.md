@@ -172,6 +172,13 @@ VISUALISATION = "VISUALISATION_CHOISI"
 
 - `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
 
+Si vous choisissez le mode de visualisation colorée `VISUALISATION = "COULEUR"`, vous pouvez choisir le type de couleur des briques :
+
+- `"STANDARD"` : Couleurs des briques proches de la palette officielle LEGO 
+
+- `"HEX"` : Couleurs en Hexadécimal réglables à la ligne 173 du script `main.py`
+
+
 <br>
 
 ### Voxelisation
