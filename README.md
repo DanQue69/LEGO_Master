@@ -143,19 +143,20 @@ MODE_IMPORT = "MODE_CHOISI"
     - `Y_MIN_RECTANGLE` (défaut 6860143.0) : Coordonnée Y du coin bas gauche du rectangle échantillonné
     - `LONGUEUR_X_RECTANGLE` (défaut 150) : Longueur en x dans la direction Est-Ouest en mètres
     - `LONGUEUR_Y_RECTANGLE` (défaut 100) : Longueur en y dans la direction Nord-Sud en mètres
-  
 
-<br>
+  <br>
 
-### Voxelisation
+### Workflow
 
-Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches.py`
+Réglage des paramètres du workflow général.
 
-- `TAILLE_VOXEL` : Résolution au sol (ex: 1.0 = 1 mètre pour une brique 1x1x1).
+```python
+MODE_WORKFLOW = "WORKFLOW_CHOISI" 
+```
 
-- `LDRAW_RATIO` : Échelle verticale. préréglé à 1.2 qui correspond au ratio standard d'une brique LEGO/LDRAW.
+- `"ETAPE_PAR_ETAPE"` : Génère un fichier export `.ldr` après chaque phase majeure (Voxelisation, Traitement, Optimisation). Idéal pour le debug ou pour visualiser les étapes intermédiaires.
 
-- `DENSITE_MIN` : Densité minimale de points par voxel pour être pris en compte (ex: 1.0 = 1 point LiDAR dans un voxel pour qu'il soir pris en compte).
+- `"DIRECT"` : Ne génère que le modèle final optimisé.
 
 <br>
 
@@ -170,6 +171,18 @@ VISUALISATION = "VISUALISATION_CHOISI"
 - `"COULEUR"` : Utilise la classification LiDAR standard pour colorer les briques LEGO, le détail de chaque couleur associée à sa classification est disponible dans le fichier `LIDAR_LDRAW.py`.
 
 - `"GRIS"` : Génère une maquette monochrome type "Architecture" où toutes les briques sont grises.
+
+<br>
+
+### Voxelisation
+
+Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches.py`
+
+- `TAILLE_VOXEL` : Résolution au sol (ex: 1.0 = 1 mètre pour une brique 1x1x1).
+
+- `LDRAW_RATIO` : Échelle verticale. préréglé à 1.2 qui correspond au ratio standard d'une brique LEGO/LDRAW.
+
+- `DENSITE_MIN` : Densité minimale de points par voxel pour être pris en compte (ex: 1.0 = 1 point LiDAR dans un voxel pour qu'il soir pris en compte).
 
 <br>
 
