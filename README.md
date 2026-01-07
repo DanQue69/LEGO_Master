@@ -275,7 +275,7 @@ TYPE_CONSOLIDATION = "TYPE_CONSOLIDATION_CHOISI"
 
 Le pipeline intègre une fonction d'évaluation qui attribue un "score de coût" à la structure. Plus ce score est bas, plus la maquette est solide. Détail dans le fichier `cost_function.py`.
 
-Vous pouvez activer/désactiver (`True`/`False`) cette fonctionnalité.
+Vous pouvez activer/désactiver (`True`/`False`) cette fonctionnalité : `CALCULER_COUT_STRUCTUREL`
 
 
 <br>
