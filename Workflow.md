@@ -27,7 +27,7 @@ end
 H[MNS_TIFF.py]
 M[main.py]
 L[couches GeoTIFF]
-N[maquette  intermédiaire LDRAW]
+N[maquette intermédiaire LDRAW]
 
 A --> B
 A --> C
