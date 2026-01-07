@@ -194,6 +194,14 @@ Réglage des paramètres de voxelisation. Détail dans le fichier `LIDAR_couches
 
 ### Briques autorisées
 
+Réglage du catalogue de pièces que le solver est autorisé à utiliser pour optimiser l'assemblage.
+
+- `INVENTAIRE_BRIQUES` : Ensemble de tuples (largeur, longueur) définissant les dimensions disponibles.
+  - Briques 1.x : par défaut (1x1), (1x2), (1x3), (1x4), (1x6), (1x8)
+  - Briques 2.x : par défaut (2x2), (2x3), (2x4), (2x6)
+  - Inverses : Les dimensions inversées doivent être présentes, par défaut (2, 1), (3, 1), (4, 1), (6, 1), (8, 1), (3, 2), (4, 2), (6, 2)
+
+
 <br>
 
 ### Algorithmes de traitements structurels
