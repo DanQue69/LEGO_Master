@@ -29,13 +29,17 @@ LiDAR_2_LEGO/
 ├── outputs/                   # Dossier généré automatiquement contenant les résultats (modèles bruts, traités, finales, etc...) 
 │
 ├── src/                       # Code source Python (Modules internes) :
-│   ├── affichage_LIDAR.py               # Visualisation des métadonnées du fichier LiDAR
-│   ├── import_LIDAR.py                  # Lecture .laz/.las
-│   ├── LIDAR_numpy.py                   # Conversion LAS -> Numpy
-│   ├── donnees_echantillonnees_LIDAR.py # Echantillonage des données LiDAR
-│   ├── LIDAR_couches.py                 # Voxelisation 
-│   ├── LIDAR_traitement.py              # Traitements structurels des données
-│   └──  LIDAR_LDRAW.py                  # Génération fichiers .ldr
+│   ├── affichage_LIDAR.py                 # Visualisation des métadonnées du fichier LiDAR
+│   ├── import_LIDAR.py                    # Lecture .laz/.las
+│   ├── LIDAR_numpy.py                     # Conversion LAS -> Numpy
+│   ├── donnees_echantillonnees_LIDAR.py   # Echantillonage des données LiDAR
+│   ├── LIDAR_couches.py                   # Voxelisation 
+│   ├── LIDAR_traitement.py                # Traitements structurels des données
+│   ├── LIDAR_LDRAW.py                     # Génération fichiers .ldr
+│   ├── brique_merge.py                    # 
+│   ├── merge.py                           #  
+│   ├── cost_function.py                   # 
+│   └── solver.py                          # 
 │
 ├── main.py                    # Point d'entrée principal (Configuration & Exécution)
 ├── requirements.txt           # Liste des dépendances Python à installer sur votre machine
